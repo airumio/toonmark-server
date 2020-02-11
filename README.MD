@@ -10,7 +10,7 @@
 3. number list3
 4. number list4
 
-- [ ] first
+- [x] first
 - [ ] second
 - [ ] third
 
