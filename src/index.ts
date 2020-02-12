@@ -8,6 +8,6 @@ app.get("/crawling", (req : Request, res : Response) => {
 });
 
 app.listen(8080, () => {
-
+    console.log("server on");
 });
 
