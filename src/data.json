@@ -1,0 +1,17 @@
+{
+    "PLATFORM" : "platform",
+    "WEEKDAY" : "weekday",
+    "TAG" : "tag",
+    "TITLE" : "title",
+    "EPISODE" : "episode",
+
+    "주소.com/:platform?weekday=ooo" : "asd",
+    "주소.com/:platform?weekday=ooo&title=ooo" : "aa",
+    "주소.com/:platform/:weekday" : "title목록",
+    "주소.com/:platform/:tag" : "태그에 해당하는 title목록",
+    "주소.com/:platform?title=1000/:episode" : "만화데이터",
+    "주소.com/:favourite" : "즐찾한 title목록",
+    "주소.com/search/:title?param=1" : "만화제목 검색"
+
+
+}

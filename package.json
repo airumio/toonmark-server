@@ -4,8 +4,11 @@
   "description": "- list1\r - list2",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "tsc && node dist"
+    "build-ts": "tsc",
+    "start": "npm run serve",
+    "serve": "node dist/index.js",
+    "watch-node": "nodemon dist/index.js",
+    "watch-ts": "tsc -w"
   },
   "repository": "git+https://github.com/airumio/toonmark-tutorial.git",
   "author": "airumio <airumio@naver.com>",
@@ -16,9 +19,11 @@
   "homepage": "https://github.com/airumio/toonmark-tutorial#readme",
   "dependencies": {
     "cheerio": "^1.0.0-rc.3",
+    "cheerio-httpcli": "^0.7.4",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "mongoose": "^5.8.11",
+    "nodemon": "^2.0.2",
     "winston": "^3.2.1"
   },
   "devDependencies": {
