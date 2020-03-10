@@ -10,7 +10,7 @@ export interface IwebtoonDTO {
   is_up: boolean;
   is_rest: boolean;
   rank?: string;
-  last_episode?: number;
-  genre?: Array<Genre>;
   author?: string;
+  // genre?: Array<Genre>;
+  genre?: string;
 }

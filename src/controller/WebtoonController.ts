@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { Container } from 'typedi';
 import Cheerio from 'cheerio';
+import fs from 'fs';
 import Axios, { AxiosResponse } from 'axios';
 import {
   Controller,
@@ -12,43 +13,43 @@ import {
   Put,
   Delete,
 } from 'routing-controllers';
-
 import { BaseController } from './BaseController';
 import { Platform, Weekday } from '../model/Enum';
 import Address from '../Address.json';
-import { NaverService, DaumService, IwebtoonDTO } from '../service';
+import {
+  BaseService,
+  NaverService,
+  DaumService,
+  IwebtoonDTO,
+} from '../service';
 import { platform } from 'os';
 
 @JsonController('/webtoon')
 export class WebtoonController extends BaseController {
-  // 플랫폼에 대한 url 요청
   private address: { [key: string]: string } = Address;
-  /*
 
-  플랫폼의 전체 리스트() {  //초기화시 자동 실행
-    
-    foreach(x : Weekday) {
-      요일 목록가져오기(x);
-    }
-  }
+  serviceSelector = (platform: string): BaseService => {
+    if (platform === Platform.NAVER) return Container.get(NaverService);
+    else if (platform === Platform.DAUM) return Container.get(DaumService);
+  };
 
-  요일 리스트() {
-    foreach(x : Weekday) {
-      웹툰정보 가져오기(x);
-    }
-  }
+  @Get('/test')
+  dataFileChecker = () => {
+    fs.exists('../data/data.json', (exists) => {
+      if (!exists) {
+        fs.appendFile('../data/data.json', 'test file', (err) => {
+          if (err) {
+            console.log(err);
+          }
+          console.log('file make success');
+        });
+      }
+    });
+  };
 
-  @Get('/:p/:t')
-  웹툰 정보(p : Platform, t : Title) {
-
-  }
-
-const d = [{}, {}].filter(obj => obj.weekday === 'mon'); // 요일로 필터
-
-*/
   @Get('/:platform')
   public async getList(
-    @Param('platform') platform: string,
+    @Param('platform') platform: Platform,
   ): Promise<IwebtoonDTO[] | undefined> {
     try {
       const response: AxiosResponse<any> = await Axios.get(
@@ -56,13 +57,7 @@ const d = [{}, {}].filter(obj => obj.weekday === 'mon'); // 요일로 필터
       ).then((response) => response);
 
       //DI
-      let container;
-
-      if (platform === Platform.NAVER) {
-        container = Container.get(NaverService);
-      } else if (platform === Platform.DAUM) {
-        container = Container.get(DaumService);
-      }
+      const container = this.serviceSelector(platform);
 
       const data = container.getWeekInfo(response);
 
@@ -74,7 +69,7 @@ const d = [{}, {}].filter(obj => obj.weekday === 'mon'); // 요일로 필터
 
   @Get('/:platform/:day')
   public async getDailyList(
-    @Param('platform') platform: string,
+    @Param('platform') platform: Platform,
     @Param('day') day: string,
   ): Promise<IwebtoonDTO[] | undefined> {
     try {
@@ -83,15 +78,9 @@ const d = [{}, {}].filter(obj => obj.weekday === 'mon'); // 요일로 필터
       ).then((response) => response);
 
       //DI
-      let container;
+      const container = this.serviceSelector(platform);
 
-      if (platform === Platform.NAVER) {
-        container = Container.get(NaverService);
-      } else if (platform === Platform.DAUM) {
-        container = Container.get(DaumService);
-      }
-
-      const data = container.getDayInfo(response);
+      const data = container.getDayInfo(response).then((val) => val);
 
       return data;
     } catch (error) {

@@ -8,9 +8,22 @@ import { BaseService } from './BaseService';
 
 @Service()
 export class DaumService extends BaseService {
-  public getWeekInfo(response: AxiosResponse<any>): IwebtoonDTO[] {
+  public createData(
+    $: CheerioStatic,
+    title: string,
+    kind: 'week' | 'day',
+  ): IwebtoonDTO {
+    throw new Error('Method not implemented.');
+  }
+  public async getWeekInfo(
+    response: AxiosResponse<any>,
+  ): Promise<IwebtoonDTO[]> {
     return null;
   }
 
-  public getDayInfo() {}
+  public async getDayInfo(
+    response: AxiosResponse<any>,
+  ): Promise<IwebtoonDTO[]> {
+    return null;
+  }
 }
