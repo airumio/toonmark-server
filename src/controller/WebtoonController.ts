@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Container } from 'typedi';
-import Cheerio from 'cheerio';
 import fs from 'fs';
+import Moment from 'moment';
 import Axios, { AxiosResponse } from 'axios';
 import {
   Controller,
@@ -15,6 +15,7 @@ import {
 } from 'routing-controllers';
 import { BaseController } from './BaseController';
 import { Platform, Weekday } from '../model/Enum';
+import Config from '../config/config.json';
 import Address from '../Address.json';
 import {
   BaseService,
@@ -22,44 +23,109 @@ import {
   DaumService,
   IwebtoonDTO,
 } from '../service';
-import { platform } from 'os';
+
+const dataPath = __dirname + '\\..\\..\\src\\data';
+const platformregex =
+  '(naver)|(daum)|(kakao)|(lezin)|(toomics)|(toptoon)|(misterblue)';
 
 @JsonController('/webtoon')
 export class WebtoonController extends BaseController {
   private address: { [key: string]: string } = Address;
 
-  serviceSelector = (platform: string): BaseService => {
+  serviceSelector = (platform: Platform): BaseService => {
     if (platform === Platform.NAVER) return Container.get(NaverService);
     else if (platform === Platform.DAUM) return Container.get(DaumService);
   };
 
   @Get('/test')
-  dataFileChecker = () => {
-    fs.exists('../data/data.json', (exists) => {
-      if (!exists) {
-        fs.appendFile('../data/data.json', 'test file', (err) => {
-          if (err) {
-            console.log(err);
-          }
-          console.log('file make success');
-        });
-      }
-    });
+  test = async () => {
+    return;
   };
 
-  @Get('/:platform')
+  dataFileChecker = (file: string): boolean => {
+    try {
+      //create data.json file when the file doesn't exists.
+      if (!fs.existsSync(file)) {
+        try {
+          fs.mkdirSync(file.slice(0, file.lastIndexOf('/')));
+        } catch (error) {
+          if (error.code != 'EEXIST') throw error;
+        }
+        fs.appendFileSync(file, '[]');
+
+        return true;
+      }
+
+      const filestat = fs.statSync(file);
+      const tmp: Date = new Date(Date.now() - filestat.mtime.getTime());
+
+      if (filestat.size <= 10) return true; // check data is empty
+      if (tmp.getUTCHours() >= Config.oldDataLimit) return true; //check data is old
+      // if (true) return true;
+
+      return false;
+    } catch (error) {
+      console.error(error);
+      return;
+    }
+  };
+
+  getUniqueData(
+    data: IwebtoonDTO[],
+    criteria: keyof IwebtoonDTO,
+  ): IwebtoonDTO[] {
+    return data.filter((src: IwebtoonDTO, srcIndex) => {
+      return (
+        data.findIndex((target) => {
+          return src[criteria] === target[criteria];
+        }) === srcIndex
+      );
+    });
+  }
+
+  dataIntegration(data: IwebtoonDTO[], platform: Platform) {
+    try {
+      const file = `${dataPath}/${platform}/${platform}_all.json`;
+
+      if (!fs.existsSync(file)) {
+        fs.appendFileSync(file, '[]');
+      }
+
+      const filedata: IwebtoonDTO[] = JSON.parse(fs.readFileSync(file, 'utf8'));
+
+      const buf = JSON.stringify(
+        this.getUniqueData(data.concat(filedata), 'title'),
+      );
+
+      fs.writeFileSync(file, buf, 'utf8');
+    } catch (error) {
+      console.error(error);
+      return;
+    }
+  }
+
+  @Get(`/:platform(${platformregex})`)
   public async getList(
     @Param('platform') platform: Platform,
   ): Promise<IwebtoonDTO[] | undefined> {
     try {
-      const response: AxiosResponse<any> = await Axios.get(
-        this.address[platform] + '/weekday.nhn',
-      ).then((response) => response);
+      const container = this.serviceSelector(Platform.NAVER);
+      const file = `${dataPath}/${platform}/${platform}_all.json`;
 
-      //DI
-      const container = this.serviceSelector(platform);
+      if (this.dataFileChecker(file)) {
+        const info = await container.getInfo();
+        const filedata: IwebtoonDTO[] = JSON.parse(
+          fs.readFileSync(file, 'utf8'),
+        );
 
-      const data = container.getWeekInfo(response);
+        const buf = JSON.stringify(
+          this.getUniqueData(info.concat(filedata), 'title'),
+        );
+
+        fs.writeFileSync(file, buf, 'utf8');
+      }
+
+      const data: IwebtoonDTO[] = JSON.parse(fs.readFileSync(file, 'utf8'));
 
       return data;
     } catch (error) {
@@ -67,63 +133,34 @@ export class WebtoonController extends BaseController {
     }
   }
 
-  @Get('/:platform/:day')
+  @Get(`/:platform(${platformregex})/:weekday`)
   public async getDailyList(
     @Param('platform') platform: Platform,
-    @Param('day') day: string,
+    @Param('weekday') weekday: Weekday,
   ): Promise<IwebtoonDTO[] | undefined> {
     try {
-      const response: AxiosResponse<any> = await Axios.get(
-        this.address[platform] + '/weekdayList.nhn?week=' + day,
-      ).then((response) => response);
+      if (!Object.values(Weekday).includes(weekday)) {
+        weekday = Moment()
+          .format('ddd')
+          .toLowerCase();
+      }
 
-      //DI
       const container = this.serviceSelector(platform);
+      const file = `${dataPath}/${platform}/${platform}_${weekday}.json`;
 
-      const data = container.getDayInfo(response).then((val) => val);
+      if (this.dataFileChecker(file)) {
+        const buf: string = JSON.stringify(await container.getInfo(weekday));
+
+        fs.writeFileSync(file, buf, 'utf8');
+      }
+
+      const data: IwebtoonDTO[] = JSON.parse(fs.readFileSync(file, 'utf8'));
+      this.dataIntegration(data, platform);
 
       return data;
     } catch (error) {
+      console.error(error);
       return;
     }
   }
 }
-
-// Object.assign(복사받을놈?? 원본??, 복사할럼) = > 두개를 합쳐서 새로운 object 탄생
-// { key1 : hi }, {key2: hello} => {key1: hi, key2: hello}
-// { key1: hi, key2: hello}, {key2: world} => {key1: hi, key2: world}
-/*
-      {
-        ...obj1,
-        key2: hello
-      }
-
-
-      const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-      const sum = numbers.reduce((prev, cur, idx, array) => prev + cur, 0); //55
-      const div = numbers.reduce((prev, cur, idx, array) => prev * cur, 0); //?
-
-      map, foreach, filter, reduce 공통점? array를 '순회' 한다.
-      [0, ... array.lenvth]
-      
-      const newArr : newValue[] = somearray.map(function (value, index) {
-        // return값이 '새로운 Array의 값'
-        return newValue 
-      });
-
-      const newArr : newValue[] = somearray.filter(function (value, index){
-        // return 값이 '조건'
-        return index !== 0 
-      });
-
-      const red : someAwesomeValue = somearray.reduce(function (previous, current, index, array) {
-        // 1번째 인자에 저따위인 callback이 들어가고, 2번째 인자에 initValue가 들어감
-        얘도 마찬가지로 '순회'
-      // index === 0 ?  previous === initValue, current === array[0], array === somearray
-      return을 내맘대로 정해서 냠냠 하면 
-      // index === 1 ? previous === 방금 0에서 반환한 값, current === array[1], array === somearray
-      // index === 2 ? previous === 방금 \10에서 반환한 값, current === array[2], array === somearray ....
-      // 마지막 까지 돌고 난 뒤 return 값이 반환
-      }, initializedValue)
-      
-      */

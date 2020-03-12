@@ -1,6 +1,9 @@
 import 'reflect-metadata';
-import { createExpressServer } from 'routing-controllers';
+import { createExpressServer, useContainer } from 'routing-controllers';
+import { Container } from 'typedi';
 import { WebtoonController } from './controller/WebtoonController';
+
+useContainer(Container);
 
 const app = createExpressServer({
   controllers: [WebtoonController],

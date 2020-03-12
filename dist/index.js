@@ -2,7 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
 const routing_controllers_1 = require("routing-controllers");
+const typedi_1 = require("typedi");
 const WebtoonController_1 = require("./controller/WebtoonController");
+routing_controllers_1.useContainer(typedi_1.Container);
 const app = routing_controllers_1.createExpressServer({
     controllers: [WebtoonController_1.WebtoonController],
 });

@@ -3,144 +3,149 @@ import { Service } from 'typedi';
 import Cheerio from 'cheerio';
 import Axios, { AxiosResponse } from 'axios';
 import { IwebtoonDTO } from './Webtoon';
-import { Platform, Genre } from '../model/Enum';
+import { Platform, Genre, Weekday } from '../model/Enum';
 import { BaseService } from './BaseService';
 import Address from '../Address.json';
-import { URLSearchParams } from 'url';
-import { promises } from 'dns';
 
 @Service()
 export class NaverService extends BaseService {
-  constructor() {
-    super();
-    this.createData = this.createData.bind(this);
-    this.getWeekInfo = this.getWeekInfo.bind(this);
-  }
+  private address: { [key: string]: string } = Address;
 
-  myObj = (title: string) => ({
-    week: `.daily_all ul li a[title='${title}']`,
-    day: `.daily_img ul li .thumb a[title='${title}']`,
-  });
+  // constructor() {
+  //   super();
+  //   this.createData = this.createData.bind(this);
+  //   this.getInfo = this.getInfo.bind(this);
+  // }
 
-  weekdayChecker = (arg: Cheerio) => {
-    if (arg.length > 1) {
-      return arg
-        .toArray()
-        .map((val) => val.attribs.href.slice(-3))
-        .toString();
-    } else {
-      return arg.attr().href.slice(-3);
-    }
-  };
-
-  getExtraData = async (link: string): Promise<string | undefined> => {
+  getExtraData = async (link: string): Promise<string[] | undefined> => {
     try {
-      const response: AxiosResponse<any> = await Axios.get(link).then(
-        (response) => response,
+      const response: AxiosResponse<any> = await Axios.get(
+        link.replace('://', '://m.'),
       );
 
       const $ = Cheerio.load(response.data);
-      const genre: string = $('.genre').text();
+      const weekday = $('.week_day dd ul:nth-of-type(1) li')
+        .text()
+        .split('')
+        .map((val: string | number) => Weekday[val])
+        .join(',');
+      const genre: string = $('.genre dd span, .genre dd ul li')
+        .contents()
+        .toArray()
+        .map((val) => val.data)
+        .join(',');
 
-      return genre;
+      return [weekday, genre];
     } catch (error) {
-      // console.warn(error);
-      // console.log(link);
+      console.error(error);
       return;
     }
   };
 
-  //함수 인자로써 2개까지
-  //3개까지 3개를 넘어가면 'Object화 해서 넘긴다'.
+  /*
+    url : https://m.comic.naver.com/webtoon/weekday.nhn
+    param : ?week=mon
 
-  public async createData(
-    $: CheerioStatic,
-    title: string,
-    kind: 'week' | 'day',
-  ): Promise<IwebtoonDTO> {
-    const attribs = $(this.myObj(title)[kind]).attr();
-    const parentTag = $(this.myObj(title)[kind]).parent();
-    const href = new URL(Address.naver + attribs.href);
+    7번(일주일) foreach or map
+     가져올 값
+      1. title
+      2. ID
+      3. weekday
+      4. thumbnail
+      5. platform
+      6. link
+      7. is_up
+      8. is_rest
+      9. author
+      10? favorite
+      해당 링크 들어가서
+        11. 장르
 
-    const id: string | number = href.searchParams.get('titleId');
-    const weekday: string = this.weekdayChecker($(this.myObj(title)[kind]));
-    const thumbnail: string = parentTag.find('.thumb a img').attr()['src'];
-    const link: string = href.origin + attribs.href;
-    const is_up: boolean =
-      parentTag.find('.thumb .ico_updt').length > 0 ? true : false;
-    const is_rest: boolean =
-      parentTag.find('.thumb .ico_break').length > 0 ? true : false;
-    const rank: string | undefined =
-      parentTag
-        .siblings('dl')
-        .find('.rating_type strong')
-        .text() || undefined;
-    const author: string | undefined =
-      parentTag
-        .siblings('dl')
-        .find('.desc a')
-        .text() || undefined;
 
-    const genre = await this.getExtraData(link);
+        
+  
+  */
 
-    const result: IwebtoonDTO = {
-      id,
-      title,
-      weekday,
-      thumbnail,
-      link,
-      is_up,
-      is_rest,
-      rank,
-      author,
-      platform: Platform.NAVER,
-      genre,
-    };
+  public async createData(url: string): Promise<IwebtoonDTO[] | undefined> {
+    try {
+      const baseUrl = new URL(url).origin.replace('m.', '');
+      const response: AxiosResponse<any> = await Axios.get(url);
 
-    return result;
+      const $ = Cheerio.load(response.data);
+
+      const data = Promise.all(
+        $('.list_toon .item .info .title')
+          .contents()
+          .toArray()
+          .map(async (val) => {
+            const title = val.data;
+            const parentTag = $(
+              `.list_toon .item .info .title:contains(${title})`,
+            ).parents('a');
+            const link = baseUrl + parentTag.attr().href;
+            const linkParams = new URL(link);
+            const id = linkParams.searchParams.get('titleId');
+            // const weekday = linkParams.searchParams.get('week');
+            const thumbnail = parentTag.find('.thumbnail img').attr().src;
+            const author = parentTag.find('.info .author').text();
+            const is_up: boolean =
+              parentTag.find('.info .detail .up').length > 0 ? true : false;
+            const is_rest: boolean =
+              parentTag.find('.info .detail .break').length > 0 ? true : false;
+
+            const [weekday, genre] = await this.getExtraData(link);
+
+            const result: IwebtoonDTO = {
+              id,
+              title,
+              weekday,
+              thumbnail,
+              link,
+              author,
+              is_up,
+              is_rest,
+              genre,
+              platform: Platform.NAVER,
+            };
+
+            return result;
+          }),
+      );
+
+      return data;
+    } catch (error) {
+      console.error(error);
+      return;
+    }
   }
 
-  public async getWeekInfo(
-    response: AxiosResponse<any>,
-  ): Promise<IwebtoonDTO[]> {
-    const cheerioStatic = Cheerio.load(response.data);
+  public async getInfo(weekday?: string): Promise<IwebtoonDTO[]> {
+    try {
+      if (weekday === undefined) {
+        const week = [
+          Weekday.MON,
+          Weekday.TUE,
+          Weekday.WED,
+          Weekday.THU,
+          Weekday.FRI,
+          Weekday.SAT,
+          Weekday.SUN,
+        ];
 
-    // 웹툰 제목들
-    const titles: string[] = cheerioStatic(`.list_area ul li a[title]`)
-      .contents()
-      .toArray()
-      .map((val) => val.data);
+        const data = await week.reduce(async (prev, cur) => {
+          return (await prev).concat(
+            await this.createData(Address.naver + '?week=' + cur),
+          );
+        }, Promise.resolve([]));
 
-    const dataList = await Promise.all(
-      titles.map((val) => this.createData(cheerioStatic, val, 'week')),
-    );
+        return data;
+      } else {
+        const data = await this.createData(Address.naver + '?week=' + weekday);
 
-    // const dataList = titles.reduce(async (prev, cur) => {
-    //   return (await prev.then()).concat(
-    //     await this.createData(cheerioStatic, cur, 'week'),
-    //   );
-    // }, Promise.resolve([]));
-
-    return dataList;
-  }
-
-  public async getDayInfo(
-    response: AxiosResponse<any>,
-  ): Promise<IwebtoonDTO[]> {
-    const cheerioStatic = Cheerio.load(response.data);
-
-    const titles: string[] = cheerioStatic(`.list_area ul li .thumb a`)
-      .toArray()
-      .map((val) => val.attribs['title']);
-
-    const dataList: IwebtoonDTO[] = titles.reduce(
-      (prev, cur) =>
-        prev.concat(
-          this.createData(cheerioStatic, cur, 'day').then((val) => val),
-        ),
-      [],
-    );
-
-    return dataList;
+        return data;
+      }
+    } catch (error) {
+      console.error(error);
+    }
   }
 }

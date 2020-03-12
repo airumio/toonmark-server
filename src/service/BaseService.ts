@@ -15,10 +15,6 @@ export abstract class BaseService {
   // ): IwebtoonDTO;
   // public abstract getWeekInfo(response: AxiosResponse<any>): IwebtoonDTO[];
   // public abstract getDayInfo(response: AxiosResponse<any>): IwebtoonDTO[];
-  public abstract async getWeekInfo(
-    response: AxiosResponse<any>,
-  ): Promise<IwebtoonDTO[]>;
-  public abstract async getDayInfo(
-    response: AxiosResponse<any>,
-  ): Promise<IwebtoonDTO[]>;
+
+  public abstract async getInfo(weekday?: string): Promise<IwebtoonDTO[]>;
 }

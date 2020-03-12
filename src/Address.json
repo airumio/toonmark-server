@@ -1,5 +1,5 @@
 {
-  "naver": "https://comic.naver.com/webtoon",
+  "naver": "https://m.comic.naver.com/webtoon/weekday.nhn",
   "daum": "http://webtoon.daum.net/",
 
   "주소.com/webtoon/:platform?weekday=ooo": "asd",

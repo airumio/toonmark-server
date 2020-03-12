@@ -11,6 +11,5 @@ export interface IwebtoonDTO {
   is_rest: boolean;
   rank?: string;
   author?: string;
-  // genre?: Array<Genre>;
   genre?: string;
 }
