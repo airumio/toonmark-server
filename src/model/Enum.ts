@@ -2,7 +2,7 @@ export enum Platform {
   NAVER = 'naver',
   DAUM = 'daum',
   KAKAO = 'kakao',
-  LEZIN = 'lezin',
+  LEZHIN = 'lezhin',
   TOOMICS = 'toomics',
   TOPTOON = 'toptoon',
   MISTERBLUE = 'misterblue',

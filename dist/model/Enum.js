@@ -5,7 +5,7 @@ var Platform;
     Platform["NAVER"] = "naver";
     Platform["DAUM"] = "daum";
     Platform["KAKAO"] = "kakao";
-    Platform["LEZIN"] = "lezin";
+    Platform["LEZHIN"] = "lezhin";
     Platform["TOOMICS"] = "toomics";
     Platform["TOPTOON"] = "toptoon";
     Platform["MISTERBLUE"] = "misterblue";

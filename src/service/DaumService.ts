@@ -20,10 +20,10 @@ type daumApi = {
 
 @Service()
 export class DaumService extends BaseService {
-  public async createData(url: string): Promise<IwebtoonDTO[] | undefined> {
+  public async createData(url: URL): Promise<IwebtoonDTO[] | undefined> {
     try {
-      const baseUrl = new URL(url).origin;
-      const response: AxiosResponse<any> = await Axios.get(url);
+      const baseUrl = url.origin;
+      const response: AxiosResponse<any> = await Axios.get(url.href);
       const rawdata = response.data.data;
       const data = rawdata.map((val: daumApi) => {
         const id = val.nickname;
@@ -83,12 +83,14 @@ export class DaumService extends BaseService {
         ];
 
         const data = await week.reduce(async (prev, cur) => {
-          return (await prev).concat(await this.createData(Address.daum + cur));
+          return (await prev).concat(
+            await this.createData(new URL(Address.daum + cur)),
+          );
         }, Promise.resolve([]));
 
         return data;
       } else {
-        const data = await this.createData(Address.daum + weekday);
+        const data = await this.createData(new URL(Address.daum + weekday));
 
         return data;
       }

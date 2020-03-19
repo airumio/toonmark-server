@@ -29,17 +29,19 @@ const weekObj: { [key: string]: string } = {
 
 @Service()
 export class KakaoService extends BaseService {
-  public async createData(url: string): Promise<IwebtoonDTO[]> {
+  public async createData(url: URL): Promise<IwebtoonDTO[]> {
     try {
       const baseUrl = 'https://page.kakao.com/';
-      const response: AxiosResponse<any> = await Axios.get(url);
+      const response: AxiosResponse<any> = await Axios.get(url.href);
 
       const rawdata =
         response.data.section_containers[0].section_series[0].list;
       const data = rawdata.map((val: kakaoApi) => {
         const id = val.series_id;
         const title = val.title;
-        const weekday = Object.keys(weekObj)[Number(url.slice(-1)) - 1];
+        const weekday = Object.keys(weekObj)[
+          Number(url.searchParams.get('day')) - 1
+        ];
         const thumbnail = Address['kakao-thumb'] + val.thumb_img;
         const link = `${baseUrl}home?seriesId=${id}`;
         const author = val.author;
@@ -88,12 +90,14 @@ export class KakaoService extends BaseService {
       if (weekday === undefined) {
         const data = await week.reduce(async (prev, cur) => {
           return (await prev).concat(
-            await this.createData(Address.kakao + cur),
+            await this.createData(new URL(Address.kakao + cur)),
           );
         }, Promise.resolve([]));
         return data;
       } else {
-        const data = await this.createData(Address.kakao + weekObj[weekday]);
+        const data = await this.createData(
+          new URL(Address.kakao + weekObj[weekday]),
+        );
         return data;
       }
     } catch (error) {

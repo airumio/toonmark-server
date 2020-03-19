@@ -17,7 +17,7 @@ export abstract class BaseService {
   // public abstract getDayInfo(response: AxiosResponse<any>): IwebtoonDTO[];
 
   public abstract async createData(
-    url: string,
+    url?: URL,
   ): Promise<IwebtoonDTO[] | undefined>;
 
   public abstract async getInfo(weekday?: string): Promise<IwebtoonDTO[]>;

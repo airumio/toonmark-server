@@ -66,10 +66,10 @@ export class NaverService extends BaseService {
   
   */
 
-  public async createData(url: string): Promise<IwebtoonDTO[] | undefined> {
+  public async createData(url: URL): Promise<IwebtoonDTO[] | undefined> {
     try {
-      const baseUrl = new URL(url).origin.replace('m.', '');
-      const response: AxiosResponse<any> = await Axios.get(url);
+      const baseUrl = url.origin.replace('m.', '');
+      const response: AxiosResponse<any> = await Axios.get(url.href);
 
       const $ = Cheerio.load(response.data);
 
@@ -134,13 +134,15 @@ export class NaverService extends BaseService {
 
         const data = await week.reduce(async (prev, cur) => {
           return (await prev).concat(
-            await this.createData(Address.naver + '?week=' + cur),
+            await this.createData(new URL(Address.naver + '?week=' + cur)),
           );
         }, Promise.resolve([]));
 
         return data;
       } else {
-        const data = await this.createData(Address.naver + '?week=' + weekday);
+        const data = await this.createData(
+          new URL(Address.naver + '?week=' + weekday),
+        );
 
         return data;
       }
