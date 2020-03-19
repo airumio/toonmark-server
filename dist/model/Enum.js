@@ -28,6 +28,13 @@ var Weekday;
     Weekday["\uD1A0"] = "sat";
     Weekday["\uC77C"] = "sun";
     Weekday["\uC5F4\uD758"] = "ten";
+    Weekday["mon"] = "1";
+    Weekday["tue"] = "2";
+    Weekday["wed"] = "3";
+    Weekday["thu"] = "4";
+    Weekday["fri"] = "5";
+    Weekday["sat"] = "6";
+    Weekday["sun"] = "7";
 })(Weekday = exports.Weekday || (exports.Weekday = {}));
 var Genre;
 (function (Genre) {

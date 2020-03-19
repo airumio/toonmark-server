@@ -21,25 +21,30 @@ import {
   BaseService,
   NaverService,
   DaumService,
+  KakaoService,
   IwebtoonDTO,
 } from '../service';
 
 const dataPath = __dirname + '\\..\\..\\src\\data';
-const platformregex =
-  '(naver)|(daum)|(kakao)|(lezin)|(toomics)|(toptoon)|(misterblue)';
+const platformregex = 'daum|naver|kakao|lezin|toomics|toptoon|misterblue';
 
+// @Controller('/webtoon')
 @JsonController('/webtoon')
 export class WebtoonController extends BaseController {
-  private address: { [key: string]: string } = Address;
-
   serviceSelector = (platform: Platform): BaseService => {
     if (platform === Platform.NAVER) return Container.get(NaverService);
     else if (platform === Platform.DAUM) return Container.get(DaumService);
+    else if (platform === Platform.KAKAO) return Container.get(KakaoService);
   };
 
   @Get('/test')
   test = async () => {
-    return;
+    const container = this.serviceSelector(Platform.KAKAO);
+    // const result = await container.getInfo('wed');
+    const data = await container.getInfo('thu');
+    // return { hi: '123' };
+
+    return data;
   };
 
   dataFileChecker = (file: string): boolean => {
@@ -109,7 +114,7 @@ export class WebtoonController extends BaseController {
     @Param('platform') platform: Platform,
   ): Promise<IwebtoonDTO[] | undefined> {
     try {
-      const container = this.serviceSelector(Platform.NAVER);
+      const container = this.serviceSelector(platform);
       const file = `${dataPath}/${platform}/${platform}_all.json`;
 
       if (this.dataFileChecker(file)) {

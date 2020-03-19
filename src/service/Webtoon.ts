@@ -8,7 +8,7 @@ export interface IwebtoonDTO {
   platform: Platform;
   link: string;
   is_up: boolean;
-  is_rest: boolean;
+  is_break: boolean;
   rank?: string;
   author?: string;
   genre?: string;

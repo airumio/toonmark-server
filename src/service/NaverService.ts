@@ -3,7 +3,7 @@ import { Service } from 'typedi';
 import Cheerio from 'cheerio';
 import Axios, { AxiosResponse } from 'axios';
 import { IwebtoonDTO } from './Webtoon';
-import { Platform, Genre, Weekday } from '../model/Enum';
+import { Platform, Weekday } from '../model/Enum';
 import { BaseService } from './BaseService';
 import Address from '../Address.json';
 
@@ -90,7 +90,7 @@ export class NaverService extends BaseService {
             const author = parentTag.find('.info .author').text();
             const is_up: boolean =
               parentTag.find('.info .detail .up').length > 0 ? true : false;
-            const is_rest: boolean =
+            const is_break: boolean =
               parentTag.find('.info .detail .break').length > 0 ? true : false;
 
             const [weekday, genre] = await this.getExtraData(link);
@@ -103,7 +103,7 @@ export class NaverService extends BaseService {
               link,
               author,
               is_up,
-              is_rest,
+              is_break,
               genre,
               platform: Platform.NAVER,
             };

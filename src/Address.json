@@ -1,6 +1,8 @@
 {
   "naver": "https://m.comic.naver.com/webtoon/weekday.nhn",
-  "daum": "http://webtoon.daum.net/",
+  "daum": "http://webtoon.daum.net/data/pc/webtoon/list_serialized/",
+  "kakao": "https://api2-page.kakao.com/api/v7/store/section_container/list?agent=web&category=10&subcategory=1000&day=",
+  "kakao-thumb": "https://dn-img-page.kakao.com/download/resource?kid=",
 
   "주소.com/webtoon/:platform?weekday=ooo": "asd",
   "주소.com/webtoon/:platform?weekday=ooo&title=ooo": "aa",
