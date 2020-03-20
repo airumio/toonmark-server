@@ -1,31 +1,12 @@
 import 'reflect-metadata';
 import { Service } from 'typedi';
-import Cheerio from 'cheerio';
 import Axios, { AxiosResponse } from 'axios';
 import { IwebtoonDTO } from './Webtoon';
-import { Platform, Genre, Weekday } from '../model/Enum';
+import { Platform } from '../model/Enum';
+import { kakao_API_type, platform_daytype, kakao_week } from '../model/Object';
 import { BaseService } from './BaseService';
 import Address from '../Address.json';
 import Moment from 'moment';
-
-type kakaoApi = {
-  series_id: string;
-  title: string;
-  thumb_img: string;
-  author: string;
-  last_slide_added_date: string;
-  sub_category_title: string;
-};
-
-const weekObj: { [key: string]: string } = {
-  mon: '1',
-  tue: '2',
-  wed: '3',
-  thu: '4',
-  fri: '5',
-  sat: '6',
-  sun: '7',
-};
 
 @Service()
 export class KakaoService extends BaseService {
@@ -36,10 +17,10 @@ export class KakaoService extends BaseService {
 
       const rawdata =
         response.data.section_containers[0].section_series[0].list;
-      const data = rawdata.map((val: kakaoApi) => {
+      const data = rawdata.map((val: kakao_API_type) => {
         const id = val.series_id;
         const title = val.title;
-        const weekday = Object.keys(weekObj)[
+        const weekday = Object.keys(kakao_week)[
           Number(url.searchParams.get('day')) - 1
         ];
         const thumbnail = Address['kakao-thumb'] + val.thumb_img;
@@ -77,26 +58,16 @@ export class KakaoService extends BaseService {
 
   public async getInfo(weekday?: string): Promise<IwebtoonDTO[]> {
     try {
-      const week = [
-        Weekday.mon,
-        Weekday.tue,
-        Weekday.wed,
-        Weekday.thu,
-        Weekday.fri,
-        Weekday.sat,
-        Weekday.sun,
-      ];
-
       if (weekday === undefined) {
-        const data = await week.reduce(async (prev, cur) => {
+        const data = await platform_daytype.kakao.reduce(async (prev, cur) => {
           return (await prev).concat(
-            await this.createData(new URL(Address.kakao + cur)),
+            await this.createData(new URL(Address.kakao + kakao_week[cur])),
           );
         }, Promise.resolve([]));
         return data;
       } else {
         const data = await this.createData(
-          new URL(Address.kakao + weekObj[weekday]),
+          new URL(Address.kakao + kakao_week[weekday]),
         );
         return data;
       }

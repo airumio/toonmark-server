@@ -5,6 +5,7 @@
   "kakao-thumb": "https://dn-img-page.kakao.com/download/resource?kid=",
   "lezhin": "https://www.lezhin.com/api/v2/inventory_groups/home_scheduled",
   "lezhin-thumb": "https://cdn.lezhin.com/v2",
+  "toomics": "https://www.toomics.com/webtoon/weekly/dow/",
 
   "주소.com/webtoon/:platform?weekday=ooo": "asd",
   "주소.com/webtoon/:platform?weekday=ooo&title=ooo": "aa",

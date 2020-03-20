@@ -15,19 +15,37 @@ import {
 } from 'routing-controllers';
 import { BaseController } from './BaseController';
 import { Platform, Weekday } from '../model/Enum';
+import { platform_daytype } from '../model/Object';
 import Config from '../config/config.json';
-import Address from '../Address.json';
 import {
   BaseService,
   NaverService,
   DaumService,
   KakaoService,
   LezhinService,
+  ToomicsService,
   IwebtoonDTO,
 } from '../service';
 
 const dataPath = __dirname + '\\..\\..\\src\\data';
 const platformregex = 'daum|naver|kakao|lezhin|toomics|toptoon|misterblue';
+
+// async function foo(pageNum: number, data: string): Promise<string> {
+//   const resData = await Axios.post(
+//     'https://www.toomics.com/webtoon/weekly/dow/6',
+//     `page=${pageNum}&load_contents=Y`,
+//     {
+//       headers: {
+//         'User-Agent':
+//           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36',
+//       },
+//     },
+//   );
+
+//   if (resData.data !== 0) return foo(++pageNum, data + resData.data);
+
+//   return data;
+// }
 
 // @Controller('/webtoon')
 @JsonController('/webtoon')
@@ -37,16 +55,22 @@ export class WebtoonController extends BaseController {
     else if (platform === Platform.DAUM) return Container.get(DaumService);
     else if (platform === Platform.KAKAO) return Container.get(KakaoService);
     else if (platform === Platform.LEZHIN) return Container.get(LezhinService);
+    else if (platform === Platform.TOOMICS)
+      return Container.get(ToomicsService);
   };
 
   @Get('/test')
   test = async () => {
-    const container = this.serviceSelector(Platform.LEZHIN);
-    const result = await container.getInfo();
+    const container = this.serviceSelector(Platform.TOOMICS);
+    // const result = await container.getInfo();
+
+    // const data: string = await foo(1, '');
+
+    const data = container.getInfo('mon');
+
+    return data;
 
     // return { hi: '123' };
-
-    return result;
   };
 
   dataFileChecker = (file: string): boolean => {
@@ -146,7 +170,7 @@ export class WebtoonController extends BaseController {
     @Param('weekday') weekday: Weekday,
   ): Promise<IwebtoonDTO[] | undefined> {
     try {
-      if (!Object.values(Weekday).includes(weekday)) {
+      if (!Object.values(platform_daytype[platform]).includes(weekday)) {
         weekday = Moment()
           .format('ddd')
           .toLowerCase();

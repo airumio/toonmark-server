@@ -4,6 +4,7 @@ import Cheerio from 'cheerio';
 import Axios, { AxiosResponse } from 'axios';
 import { IwebtoonDTO } from './Webtoon';
 import { Platform, Weekday } from '../model/Enum';
+import { platform_daytype } from '../model/Object';
 import { BaseService } from './BaseService';
 import Address from '../Address.json';
 
@@ -122,17 +123,7 @@ export class NaverService extends BaseService {
   public async getInfo(weekday?: string): Promise<IwebtoonDTO[]> {
     try {
       if (weekday === undefined) {
-        const week = [
-          Weekday.MON,
-          Weekday.TUE,
-          Weekday.WED,
-          Weekday.THU,
-          Weekday.FRI,
-          Weekday.SAT,
-          Weekday.SUN,
-        ];
-
-        const data = await week.reduce(async (prev, cur) => {
+        const data = await platform_daytype.naver.reduce(async (prev, cur) => {
           return (await prev).concat(
             await this.createData(new URL(Address.naver + '?week=' + cur)),
           );

@@ -1,40 +1,22 @@
 import 'reflect-metadata';
 import { Service } from 'typedi';
-import Cheerio from 'cheerio';
-import Axios, { AxiosResponse } from 'axios';
+import Axios from 'axios';
 import { IwebtoonDTO } from './Webtoon';
-import { Platform, Weekday } from '../model/Enum';
+import { Platform } from '../model/Enum';
+import {
+  lezhin_API_type,
+  lezhin_GenreList,
+  lezhin_week,
+} from '../model/Object';
 import { BaseService } from './BaseService';
 import Address from '../Address.json';
-
-type lezhinApi = {
-  targetUrl: string;
-  title: string;
-  schedule: { periods: string[] };
-  mediaList: [{ url: string }];
-  authors: [{ name: string }];
-  badges: string;
-  genres: string[];
-};
-type lezhinGenreList = [{ id: string; name: string }];
-
-const weekObj: { [key: string]: string } = {
-  sun: '0',
-  mon: '1',
-  tue: '2',
-  wed: '3',
-  thu: '4',
-  fri: '5',
-  sat: '6',
-  ten: '7',
-};
 
 @Service()
 export class LezhinService extends BaseService {
   getSortedData(
     baseurl: string,
-    rawdata: lezhinApi,
-    genreList: lezhinGenreList,
+    rawdata: lezhin_API_type,
+    genreList: lezhin_GenreList,
   ): IwebtoonDTO {
     const id = rawdata.targetUrl.split('/')[3];
     const title = rawdata.title;
@@ -71,12 +53,12 @@ export class LezhinService extends BaseService {
       const response = await Axios.get(url.href, {
         headers: {
           'x-lz-locale': 'ko-KR',
-          'x-lz-allowadult': 'true',
+          'x-lz-allowadult': 'false',
           'x-lz-adult': '2',
         },
       });
       const genreList = response.data.data.extra.genreList;
-      const rawdata: [{ items: [lezhinApi] }] =
+      const rawdata: [{ items: [lezhin_API_type] }] =
         response.data.data.inventoryList;
       rawdata.splice(0, 1);
 
@@ -101,10 +83,11 @@ export class LezhinService extends BaseService {
       console.error(error);
     }
   }
+
   public async getInfo(weekday?: string): Promise<IwebtoonDTO[]> {
     try {
       const data = await this.createData(
-        new URL(`${Address.lezhin}?param=${weekObj[weekday]}`),
+        new URL(`${Address.lezhin}?param=${lezhin_week[weekday]}`),
       );
 
       return data;

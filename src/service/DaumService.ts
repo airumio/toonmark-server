@@ -1,22 +1,12 @@
 import 'reflect-metadata';
 import { Service } from 'typedi';
-import Cheerio from 'cheerio';
 import Axios, { AxiosResponse } from 'axios';
 import { IwebtoonDTO } from './Webtoon';
-import { Platform, Weekday } from '../model/Enum';
+import { Platform } from '../model/Enum';
+import { daum_API_type, platform_daytype } from '../model/Object';
 import { BaseService } from './BaseService';
 import Address from '../Address.json';
 import Moment from 'moment';
-
-type daumApi = {
-  nickname: string;
-  title: string;
-  webtoonWeeks: [{ weekDay: string }];
-  thumbnailImage2: { url: string };
-  cartoon: { artists: [{ penName: string }]; genres: [{ name: string }] };
-  latestWebtoonEpisode: { dateCreated: string };
-  restYn: string;
-};
 
 @Service()
 export class DaumService extends BaseService {
@@ -25,7 +15,7 @@ export class DaumService extends BaseService {
       const baseUrl = url.origin;
       const response: AxiosResponse<any> = await Axios.get(url.href);
       const rawdata = response.data.data;
-      const data = rawdata.map((val: daumApi) => {
+      const data = rawdata.map((val: daum_API_type) => {
         const id = val.nickname;
         const title = val.title;
         const weekday = val.webtoonWeeks
@@ -72,17 +62,7 @@ export class DaumService extends BaseService {
   public async getInfo(weekday?: string): Promise<IwebtoonDTO[]> {
     try {
       if (weekday === undefined) {
-        const week = [
-          Weekday.MON,
-          Weekday.TUE,
-          Weekday.WED,
-          Weekday.THU,
-          Weekday.FRI,
-          Weekday.SAT,
-          Weekday.SUN,
-        ];
-
-        const data = await week.reduce(async (prev, cur) => {
+        const data = await platform_daytype.daum.reduce(async (prev, cur) => {
           return (await prev).concat(
             await this.createData(new URL(Address.daum + cur)),
           );
