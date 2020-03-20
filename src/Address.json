@@ -1,0 +1,17 @@
+{
+  "naver": "https://m.comic.naver.com/webtoon/weekday.nhn",
+  "daum": "http://webtoon.daum.net/data/pc/webtoon/list_serialized/",
+  "kakao": "https://api2-page.kakao.com/api/v7/store/section_container/list?agent=web&category=10&subcategory=1000&day=",
+  "kakao-thumb": "https://dn-img-page.kakao.com/download/resource?kid=",
+  "lezhin": "https://www.lezhin.com/api/v2/inventory_groups/home_scheduled",
+  "lezhin-thumb": "https://cdn.lezhin.com/v2",
+  "toomics": "https://www.toomics.com/webtoon/weekly/dow/",
+
+  "주소.com/webtoon/:platform?weekday=ooo": "asd",
+  "주소.com/webtoon/:platform?weekday=ooo&title=ooo": "aa",
+  "주소.com/webtoon/:platform/:weekday": "title목록",
+  "주소.com/webtoon/:platform/:tag": "태그에 해당하는 title목록",
+  "주소.com/webtoon/:platform?title=1000/:episode": "만화데이터",
+  "주소.com/webtoon/:favourite": "즐찾한 title목록",
+  "주소.com/search/:title?param=1": "만화제목 검색"
+}
