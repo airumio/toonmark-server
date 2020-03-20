@@ -167,10 +167,12 @@ export class WebtoonController extends BaseController {
   @Get(`/:platform(${platformregex})/:weekday`)
   public async getDailyList(
     @Param('platform') platform: Platform,
-    @Param('weekday') weekday: Weekday,
+    @Param('weekday') weekday: string,
   ): Promise<IwebtoonDTO[] | undefined> {
     try {
-      if (!Object.values(platformDaytype[platform]).includes(weekday)) {
+      if (
+        !Object.values(platformDaytype[platform]).includes(weekday as Weekday)
+      ) {
         weekday = Moment()
           .format('ddd')
           .toLowerCase();

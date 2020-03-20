@@ -4,7 +4,7 @@ import Cheerio from 'cheerio';
 import Axios, { AxiosResponse } from 'axios';
 import { IwebtoonDTO } from './Webtoon';
 import { Platform, Weekday } from '../model/Enum';
-import { platformDaytype } from '../model/Object';
+import { platformDaytype, weekDayKorToEng } from '../model/Object';
 import { BaseService } from './BaseService';
 import Address from '../Address.json';
 
@@ -28,7 +28,7 @@ export class NaverService extends BaseService {
       const weekday = $('.week_day dd ul:nth-of-type(1) li')
         .text()
         .split('')
-        .map((val: string | number) => Weekday[val])
+        .map((val: string | number) => weekDayKorToEng[val])
         .join(',');
       const genre: string = $('.genre dd span, .genre dd ul li')
         .contents()

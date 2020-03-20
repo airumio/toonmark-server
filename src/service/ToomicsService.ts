@@ -5,7 +5,7 @@ import Axios, { AxiosInstance } from 'axios';
 import rateLimit from 'axios-rate-limit';
 import { IwebtoonDTO } from './Webtoon';
 import { Platform, Weekday } from '../model/Enum';
-import { platformDaytype, toomicsWeek } from '../model/Object';
+import { platformDaytype, toomicsWeek, weekDayKorToEng } from '../model/Object';
 import { BaseService } from './BaseService';
 import Address from '../Address.json';
 
@@ -29,7 +29,7 @@ export class ToomicsService extends BaseService {
         .contents()
         .toArray()
         .map((val) => {
-          return Weekday[val.data];
+          return weekDayKorToEng[val.data];
         })
         .join(',');
       const author = $('.episode__author dd')

@@ -10,6 +10,17 @@ const weekday: Weekday[] = [
   Weekday.SUN,
 ];
 
+export const weekDayKorToEng: { [key: string]: string } = {
+  월: 'mon',
+  화: 'tue',
+  수: 'wed',
+  목: 'thu',
+  금: 'fri',
+  토: 'sat',
+  일: 'sun',
+  열흘: 'ten',
+};
+
 export const platformDaytype = {
   naver: weekday,
   daum: weekday,
