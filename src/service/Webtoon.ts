@@ -7,8 +7,8 @@ export interface IwebtoonDTO {
   thumbnail: string;
   platform: Platform;
   link: string;
-  is_up: boolean;
-  is_break: boolean;
+  isUp: boolean;
+  isBreak: boolean;
   rank?: string;
   author?: string;
   genre?: string;

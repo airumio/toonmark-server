@@ -3,7 +3,7 @@ import { Service } from 'typedi';
 import Axios, { AxiosResponse } from 'axios';
 import { IwebtoonDTO } from './Webtoon';
 import { Platform } from '../model/Enum';
-import { daum_API_type, platform_daytype } from '../model/Object';
+import { daumApiType, platformDaytype } from '../model/Object';
 import { BaseService } from './BaseService';
 import Address from '../Address.json';
 import Moment from 'moment';
@@ -15,7 +15,7 @@ export class DaumService extends BaseService {
       const baseUrl = url.origin;
       const response: AxiosResponse<any> = await Axios.get(url.href);
       const rawdata = response.data.data;
-      const data = rawdata.map((val: daum_API_type) => {
+      const data = rawdata.map((val: daumApiType) => {
         const id = val.nickname;
         const title = val.title;
         const weekday = val.webtoonWeeks
@@ -33,8 +33,8 @@ export class DaumService extends BaseService {
         const yesterday = Moment()
           .subtract(1, 'day')
           .set({ hour: 22, minute: 0, second: 0 });
-        const is_up = Moment(lastestUpdate).isBetween(yesterday, Moment());
-        const is_break = val.restYn === 'Y' ? true : false;
+        const isUp = Moment(lastestUpdate).isBetween(yesterday, Moment());
+        const isBreak = val.restYn === 'Y' ? true : false;
         const genre = val.cartoon.genres.map((val) => val.name).join(',');
 
         const result: IwebtoonDTO = {
@@ -44,8 +44,8 @@ export class DaumService extends BaseService {
           thumbnail,
           link,
           author,
-          is_up,
-          is_break,
+          isUp,
+          isBreak,
           genre,
           platform: Platform.DAUM,
         };
@@ -62,7 +62,7 @@ export class DaumService extends BaseService {
   public async getInfo(weekday?: string): Promise<IwebtoonDTO[]> {
     try {
       if (weekday === undefined) {
-        const data = await platform_daytype.daum.reduce(async (prev, cur) => {
+        const data = await platformDaytype.daum.reduce(async (prev, cur) => {
           return (await prev).concat(
             await this.createData(new URL(Address.daum + cur)),
           );

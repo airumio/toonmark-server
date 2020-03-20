@@ -10,7 +10,7 @@ const weekday: Weekday[] = [
   Weekday.SUN,
 ];
 
-export const platform_daytype = {
+export const platformDaytype = {
   naver: weekday,
   daum: weekday,
   kakao: weekday,
@@ -20,7 +20,7 @@ export const platform_daytype = {
   misterblue: weekday,
 };
 
-export type daum_API_type = {
+export type daumApiType = {
   nickname: string;
   title: string;
   webtoonWeeks: [{ weekDay: string }];
@@ -30,7 +30,7 @@ export type daum_API_type = {
   restYn: string;
 };
 
-export type kakao_API_type = {
+export type kakaoApiType = {
   series_id: string;
   title: string;
   thumb_img: string;
@@ -39,7 +39,7 @@ export type kakao_API_type = {
   sub_category_title: string;
 };
 
-export const kakao_week: { [key: string]: string } = {
+export const kakaoWeek: { [key: string]: string } = {
   mon: '1',
   tue: '2',
   wed: '3',
@@ -49,7 +49,7 @@ export const kakao_week: { [key: string]: string } = {
   sun: '7',
 };
 
-export type lezhin_API_type = {
+export type lezhinApiType = {
   targetUrl: string;
   title: string;
   schedule: { periods: string[] };
@@ -59,9 +59,9 @@ export type lezhin_API_type = {
   genres: string[];
 };
 
-export type lezhin_GenreList = [{ id: string; name: string }];
+export type lezhinGenreList = [{ id: string; name: string }];
 
-export const lezhin_week: { [key: string]: string } = {
+export const lezhinWeek: { [key: string]: string } = {
   sun: '0',
   mon: '1',
   tue: '2',
@@ -72,7 +72,7 @@ export const lezhin_week: { [key: string]: string } = {
   ten: '7',
 };
 
-export const toomics_week: { [key: string]: string } = {
+export const toomicsWeek: { [key: string]: string } = {
   mon: '1',
   tue: '2',
   wed: '3',

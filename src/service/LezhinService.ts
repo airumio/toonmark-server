@@ -3,11 +3,7 @@ import { Service } from 'typedi';
 import Axios from 'axios';
 import { IwebtoonDTO } from './Webtoon';
 import { Platform } from '../model/Enum';
-import {
-  lezhin_API_type,
-  lezhin_GenreList,
-  lezhin_week,
-} from '../model/Object';
+import { lezhinApiType, lezhinGenreList, lezhinWeek } from '../model/Object';
 import { BaseService } from './BaseService';
 import Address from '../Address.json';
 
@@ -15,8 +11,8 @@ import Address from '../Address.json';
 export class LezhinService extends BaseService {
   getSortedData(
     baseurl: string,
-    rawdata: lezhin_API_type,
-    genreList: lezhin_GenreList,
+    rawdata: lezhinApiType,
+    genreList: lezhinGenreList,
   ): IwebtoonDTO {
     const id = rawdata.targetUrl.split('/')[3];
     const title = rawdata.title;
@@ -26,8 +22,8 @@ export class LezhinService extends BaseService {
       rawdata.mediaList[rawdata.mediaList.length - 1].url;
     const link = baseurl + rawdata.targetUrl;
     const author = rawdata.authors.map((val) => val.name).join(',');
-    const is_up = rawdata.badges.includes('u');
-    const is_break = rawdata.badges.includes('x');
+    const isUp = rawdata.badges.includes('u');
+    const isBreak = rawdata.badges.includes('x');
     const genre = genreList.find((el) => el.id === rawdata.genres.toString())
       .name;
 
@@ -38,8 +34,8 @@ export class LezhinService extends BaseService {
       thumbnail,
       link,
       author,
-      is_up,
-      is_break,
+      isUp,
+      isBreak,
       genre,
       platform: Platform.LEZHIN,
     };
@@ -58,7 +54,7 @@ export class LezhinService extends BaseService {
         },
       });
       const genreList = response.data.data.extra.genreList;
-      const rawdata: [{ items: [lezhin_API_type] }] =
+      const rawdata: [{ items: [lezhinApiType] }] =
         response.data.data.inventoryList;
       rawdata.splice(0, 1);
 
@@ -87,7 +83,7 @@ export class LezhinService extends BaseService {
   public async getInfo(weekday?: string): Promise<IwebtoonDTO[]> {
     try {
       const data = await this.createData(
-        new URL(`${Address.lezhin}?param=${lezhin_week[weekday]}`),
+        new URL(`${Address.lezhin}?param=${lezhinWeek[weekday]}`),
       );
 
       return data;

@@ -5,7 +5,7 @@ import Axios, { AxiosInstance } from 'axios';
 import rateLimit from 'axios-rate-limit';
 import { IwebtoonDTO } from './Webtoon';
 import { Platform, Weekday } from '../model/Enum';
-import { platform_daytype, toomics_week } from '../model/Object';
+import { platformDaytype, toomicsWeek } from '../model/Object';
 import { BaseService } from './BaseService';
 import Address from '../Address.json';
 
@@ -86,9 +86,8 @@ export class ToomicsService extends BaseService {
             const link = url.origin + el('a').attr().href;
             const id = link.split('/')[link.split('/').length - 1];
             const thumbnail = el('img').attr()['data-original'];
-            const is_up: boolean =
-              $('.sp-icon__l-up').length > 0 ? true : false;
-            const is_break: boolean = false;
+            const isUp: boolean = $('.sp-icon__l-up').length > 0 ? true : false;
+            const isBreak: boolean = false;
             const genre = el('.toon-dcard__link')
               .text()
               .split('/')
@@ -103,8 +102,8 @@ export class ToomicsService extends BaseService {
               thumbnail,
               link,
               author,
-              is_up,
-              is_break,
+              isUp,
+              isBreak,
               genre,
               platform: Platform.TOOMICS,
             };
@@ -123,21 +122,16 @@ export class ToomicsService extends BaseService {
   public async getInfo(weekday?: string): Promise<IwebtoonDTO[]> {
     try {
       if (weekday === undefined) {
-        const data = await platform_daytype.toomics.reduce(
-          async (prev, cur) => {
-            return (await prev).concat(
-              await this.createData(
-                new URL(Address.toomics + toomics_week[cur]),
-              ),
-            );
-          },
-          Promise.resolve([]),
-        );
+        const data = await platformDaytype.toomics.reduce(async (prev, cur) => {
+          return (await prev).concat(
+            await this.createData(new URL(Address.toomics + toomicsWeek[cur])),
+          );
+        }, Promise.resolve([]));
 
         return data;
       } else {
         const data = await this.createData(
-          new URL(Address.toomics + toomics_week[weekday]),
+          new URL(Address.toomics + toomicsWeek[weekday]),
         );
 
         return data;

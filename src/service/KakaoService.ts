@@ -3,7 +3,7 @@ import { Service } from 'typedi';
 import Axios, { AxiosResponse } from 'axios';
 import { IwebtoonDTO } from './Webtoon';
 import { Platform } from '../model/Enum';
-import { kakao_API_type, platform_daytype, kakao_week } from '../model/Object';
+import { kakaoApiType, platformDaytype, kakaoWeek } from '../model/Object';
 import { BaseService } from './BaseService';
 import Address from '../Address.json';
 import Moment from 'moment';
@@ -17,10 +17,10 @@ export class KakaoService extends BaseService {
 
       const rawdata =
         response.data.section_containers[0].section_series[0].list;
-      const data = rawdata.map((val: kakao_API_type) => {
+      const data = rawdata.map((val: kakaoApiType) => {
         const id = val.series_id;
         const title = val.title;
-        const weekday = Object.keys(kakao_week)[
+        const weekday = Object.keys(kakaoWeek)[
           Number(url.searchParams.get('day')) - 1
         ];
         const thumbnail = Address['kakao-thumb'] + val.thumb_img;
@@ -30,8 +30,8 @@ export class KakaoService extends BaseService {
         const yesterday = Moment()
           .subtract(1, 'day')
           .set({ hour: 22, minute: 0, second: 0 });
-        const is_up = Moment(lastestUpdate).isBetween(yesterday, Moment());
-        const is_break = false;
+        const isUp = Moment(lastestUpdate).isBetween(yesterday, Moment());
+        const isBreak = false;
         const genre = val.sub_category_title.slice(0, -2);
 
         const result: IwebtoonDTO = {
@@ -41,8 +41,8 @@ export class KakaoService extends BaseService {
           thumbnail,
           link,
           author,
-          is_up,
-          is_break,
+          isUp,
+          isBreak,
           genre,
           platform: Platform.KAKAO,
         };
@@ -59,15 +59,15 @@ export class KakaoService extends BaseService {
   public async getInfo(weekday?: string): Promise<IwebtoonDTO[]> {
     try {
       if (weekday === undefined) {
-        const data = await platform_daytype.kakao.reduce(async (prev, cur) => {
+        const data = await platformDaytype.kakao.reduce(async (prev, cur) => {
           return (await prev).concat(
-            await this.createData(new URL(Address.kakao + kakao_week[cur])),
+            await this.createData(new URL(Address.kakao + kakaoWeek[cur])),
           );
         }, Promise.resolve([]));
         return data;
       } else {
         const data = await this.createData(
-          new URL(Address.kakao + kakao_week[weekday]),
+          new URL(Address.kakao + kakaoWeek[weekday]),
         );
         return data;
       }

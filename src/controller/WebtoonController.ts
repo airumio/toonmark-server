@@ -15,7 +15,7 @@ import {
 } from 'routing-controllers';
 import { BaseController } from './BaseController';
 import { Platform, Weekday } from '../model/Enum';
-import { platform_daytype } from '../model/Object';
+import { platformDaytype } from '../model/Object';
 import Config from '../config/config.json';
 import {
   BaseService,
@@ -170,7 +170,7 @@ export class WebtoonController extends BaseController {
     @Param('weekday') weekday: Weekday,
   ): Promise<IwebtoonDTO[] | undefined> {
     try {
-      if (!Object.values(platform_daytype[platform]).includes(weekday)) {
+      if (!Object.values(platformDaytype[platform]).includes(weekday)) {
         weekday = Moment()
           .format('ddd')
           .toLowerCase();

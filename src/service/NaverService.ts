@@ -4,7 +4,7 @@ import Cheerio from 'cheerio';
 import Axios, { AxiosResponse } from 'axios';
 import { IwebtoonDTO } from './Webtoon';
 import { Platform, Weekday } from '../model/Enum';
-import { platform_daytype } from '../model/Object';
+import { platformDaytype } from '../model/Object';
 import { BaseService } from './BaseService';
 import Address from '../Address.json';
 
@@ -55,7 +55,7 @@ export class NaverService extends BaseService {
       4. thumbnail
       5. platform
       6. link
-      7. is_up
+      7. isUp
       8. is_rest
       9. author
       10? favorite
@@ -89,9 +89,9 @@ export class NaverService extends BaseService {
             // const weekday = linkParams.searchParams.get('week');
             const thumbnail = parentTag.find('.thumbnail img').attr().src;
             const author = parentTag.find('.info .author').text();
-            const is_up: boolean =
+            const isUp: boolean =
               parentTag.find('.info .detail .up').length > 0 ? true : false;
-            const is_break: boolean =
+            const isBreak: boolean =
               parentTag.find('.info .detail .break').length > 0 ? true : false;
 
             const [weekday, genre] = await this.getExtraData(link);
@@ -103,8 +103,8 @@ export class NaverService extends BaseService {
               thumbnail,
               link,
               author,
-              is_up,
-              is_break,
+              isUp,
+              isBreak,
               genre,
               platform: Platform.NAVER,
             };
@@ -123,7 +123,7 @@ export class NaverService extends BaseService {
   public async getInfo(weekday?: string): Promise<IwebtoonDTO[]> {
     try {
       if (weekday === undefined) {
-        const data = await platform_daytype.naver.reduce(async (prev, cur) => {
+        const data = await platformDaytype.naver.reduce(async (prev, cur) => {
           return (await prev).concat(
             await this.createData(new URL(Address.naver + '?week=' + cur)),
           );
