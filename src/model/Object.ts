@@ -93,3 +93,27 @@ export const toomicsWeek: { [key: string]: string } = {
   sun: '7',
   ten: '10',
 };
+
+export type toptoonApiType = {
+  id: string;
+  meta: {
+    title: string;
+    comicsListUrl: string;
+    author: { authorData: [{ name: string }] };
+    genre: [{ name: string }];
+  };
+  thumbnail: { portrait: string };
+  thumbnailNonAdult: { portrait: string };
+  ribbon: { up: boolean };
+  comicWeekly: [{ comic_weekly: number }];
+};
+
+export const toptoonWeek: { [key: string]: string } = {
+  mon: '1',
+  tue: '2',
+  wed: '3',
+  thu: '4',
+  fri: '5',
+  sat: '6',
+  sun: '7',
+};

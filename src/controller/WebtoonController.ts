@@ -24,6 +24,7 @@ import {
   KakaoService,
   LezhinService,
   ToomicsService,
+  ToptoonService,
   IwebtoonDTO,
 } from '../service';
 
@@ -57,11 +58,13 @@ export class WebtoonController extends BaseController {
     else if (platform === Platform.LEZHIN) return Container.get(LezhinService);
     else if (platform === Platform.TOOMICS)
       return Container.get(ToomicsService);
+    else if (platform === Platform.TOPTOON)
+      return Container.get(ToptoonService);
   };
 
   @Get('/test')
   test = async () => {
-    const container = this.serviceSelector(Platform.TOOMICS);
+    const container = this.serviceSelector(Platform.TOPTOON);
     // const result = await container.getInfo();
 
     // const data: string = await foo(1, '');

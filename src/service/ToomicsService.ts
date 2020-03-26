@@ -4,7 +4,7 @@ import Cheerio from 'cheerio';
 import Axios, { AxiosInstance } from 'axios';
 import rateLimit from 'axios-rate-limit';
 import { IwebtoonDTO } from './Webtoon';
-import { Platform, Weekday } from '../model/Enum';
+import { Platform } from '../model/Enum';
 import { platformDaytype, toomicsWeek, weekDayKorToEng } from '../model/Object';
 import { BaseService } from './BaseService';
 import Address from '../Address.json';
