@@ -26,27 +26,11 @@ import {
   ToomicsService,
   ToptoonService,
   IwebtoonDTO,
+  MisterblueService,
 } from '../service';
 
 const dataPath = __dirname + '\\..\\..\\src\\data';
 const platformregex = 'daum|naver|kakao|lezhin|toomics|toptoon|misterblue';
-
-// async function foo(pageNum: number, data: string): Promise<string> {
-//   const resData = await Axios.post(
-//     'https://www.toomics.com/webtoon/weekly/dow/6',
-//     `page=${pageNum}&load_contents=Y`,
-//     {
-//       headers: {
-//         'User-Agent':
-//           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36',
-//       },
-//     },
-//   );
-
-//   if (resData.data !== 0) return foo(++pageNum, data + resData.data);
-
-//   return data;
-// }
 
 // @Controller('/webtoon')
 @JsonController('/webtoon')
@@ -60,20 +44,22 @@ export class WebtoonController extends BaseController {
       return Container.get(ToomicsService);
     else if (platform === Platform.TOPTOON)
       return Container.get(ToptoonService);
+    else if (platform === Platform.MISTERBLUE)
+      return Container.get(MisterblueService);
   };
 
   @Get('/test')
   test = async () => {
-    const container = this.serviceSelector(Platform.TOPTOON);
+    const container = this.serviceSelector(Platform.LEZHIN);
     // const result = await container.getInfo();
 
     // const data: string = await foo(1, '');
 
-    const data = container.getInfo('mon');
+    // const data = container.getInfo('mon');
 
-    return data;
+    // return data;
 
-    // return { hi: '123' };
+    return { hi: 'this is test page' };
   };
 
   dataFileChecker = (file: string): boolean => {

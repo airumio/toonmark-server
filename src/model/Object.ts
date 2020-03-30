@@ -117,3 +117,23 @@ export const toptoonWeek: { [key: string]: string } = {
   sat: '6',
   sun: '7',
 };
+
+export const toptoonJsonWeek: { [key: string]: number } = {
+  mon: 0,
+  tue: 1,
+  wed: 2,
+  thu: 3,
+  fri: 4,
+  sat: 5,
+  sun: 6,
+};
+
+export const misterblueWeek: { [key: string]: number } = {
+  mon: 0,
+  tue: 1,
+  wed: 2,
+  thu: 3,
+  fri: 4,
+  sat: 5,
+  sun: 6,
+};

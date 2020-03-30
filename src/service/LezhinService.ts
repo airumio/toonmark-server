@@ -43,13 +43,16 @@ export class LezhinService extends BaseService {
     return result;
   }
 
-  public async createData(url: URL): Promise<IwebtoonDTO[]> {
+  public async createData(
+    url: URL,
+    adultFlag: boolean = false,
+  ): Promise<IwebtoonDTO[]> {
     try {
       const weekday = url.searchParams.get('param');
       const response = await Axios.get(url.href, {
         headers: {
           'x-lz-locale': 'ko-KR',
-          'x-lz-allowadult': 'false',
+          'x-lz-allowadult': adultFlag,
           'x-lz-adult': '2',
         },
       });

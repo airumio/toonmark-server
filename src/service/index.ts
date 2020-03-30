@@ -5,4 +5,5 @@ export { KakaoService } from './KakaoService';
 export { LezhinService } from './LezhinService';
 export { ToomicsService } from './ToomicsService';
 export { ToptoonService } from './ToptoonService';
+export { MisterblueService } from './MisterblueService';
 export { IwebtoonDTO } from './Webtoon';

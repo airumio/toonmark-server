@@ -1,4 +1,3 @@
-import { AxiosResponse } from 'axios';
 import { IwebtoonDTO } from './Webtoon';
 
 // interface IBaseService<T extends IwebtoonDTO> {
@@ -8,16 +7,8 @@ import { IwebtoonDTO } from './Webtoon';
 // }
 
 export abstract class BaseService {
-  // public abstract createData(
-  //   $: CheerioStatic,
-  //   title: string,
-  //   kind: 'week' | 'day',
-  // ): IwebtoonDTO;
-  // public abstract getWeekInfo(response: AxiosResponse<any>): IwebtoonDTO[];
-  // public abstract getDayInfo(response: AxiosResponse<any>): IwebtoonDTO[];
-
   public abstract async createData(
-    url?: URL,
+    arg?: URL | CheerioElement,
   ): Promise<IwebtoonDTO[] | undefined>;
 
   public abstract async getInfo(weekday?: string): Promise<IwebtoonDTO[]>;

@@ -1,9 +1,15 @@
 import 'reflect-metadata';
 import { Service } from 'typedi';
 import Axios from 'axios';
+import Cheerio from 'cheerio';
 import { IwebtoonDTO } from './Webtoon';
 import { Platform } from '../model/Enum';
-import { platformDaytype, toptoonWeek, toptoonApiType } from '../model/Object';
+import {
+  platformDaytype,
+  toptoonWeek,
+  toptoonApiType,
+  toptoonJsonWeek,
+} from '../model/Object';
 import { BaseService } from './BaseService';
 import Address from '../Address.json';
 
@@ -64,17 +70,30 @@ export class ToptoonService extends BaseService {
 
   public async getInfo(weekday?: string): Promise<IwebtoonDTO[]> {
     try {
+      const response = await Axios.get(Address.toptoon);
+      const $ = Cheerio.load(response.data);
+      const rawdata = $('.js_template_list + script')[0].children[0].data;
+      const jsonFileUrl = JSON.parse(
+        rawdata.slice(
+          rawdata.indexOf('jsonFileUrl = ') + 'jsonFileUrl = '.length + 1,
+          rawdata.indexOf('var arrayMenuNames') - 3,
+        ),
+      );
+
       if (weekday === undefined) {
-        const data = await platformDaytype.toptoon.reduce(async (prev, cur) => {
-          return (await prev).concat(
-            await this.createData(new URL(address[`toptoon-${cur}`])),
-          );
-        }, Promise.resolve([]));
+        const data = await platformDaytype.toptoon.reduce(
+          async (prev, cur, idx) => {
+            return (await prev).concat(
+              await this.createData(new URL(jsonFileUrl[idx])),
+            );
+          },
+          Promise.resolve([]),
+        );
 
         return data;
       } else {
         const data = await this.createData(
-          new URL(address[`toptoon-${weekday}`]),
+          new URL(jsonFileUrl[toptoonJsonWeek[weekday]]),
         );
 
         return data;
