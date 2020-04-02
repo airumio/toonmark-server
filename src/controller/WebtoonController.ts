@@ -2,16 +2,12 @@ import 'reflect-metadata';
 import { Container } from 'typedi';
 import fs from 'fs';
 import Moment from 'moment';
-import Axios, { AxiosResponse } from 'axios';
 import {
   Controller,
   JsonController,
   Param,
-  Body,
   Get,
-  Post,
-  Put,
-  Delete,
+  OnUndefined,
 } from 'routing-controllers';
 import { BaseController } from './BaseController';
 import { Platform, Weekday } from '../model/Enum';
@@ -32,6 +28,12 @@ import {
 const dataPath = __dirname + '\\..\\..\\src\\data';
 const platformregex = 'daum|naver|kakao|lezhin|toomics|toptoon|misterblue';
 
+/*
+월요일 업 상태 -> all로 병합
+
+화요일 업 상태 -> all로 병합 시 월요일은 false여야 하는데 여전히 true상태
+*/
+
 // @Controller('/webtoon')
 @JsonController('/webtoon')
 export class WebtoonController extends BaseController {
@@ -50,7 +52,7 @@ export class WebtoonController extends BaseController {
 
   @Get('/test')
   test = async () => {
-    const container = this.serviceSelector(Platform.LEZHIN);
+    // const container = this.serviceSelector(Platform.LEZHIN);
     // const result = await container.getInfo();
 
     // const data: string = await foo(1, '');
@@ -58,8 +60,10 @@ export class WebtoonController extends BaseController {
     // const data = container.getInfo('mon');
 
     // return data;
+    // throw new Error('Method not implemented.');
 
     return { hi: 'this is test page' };
+    // return filedata;
   };
 
   dataFileChecker = (file: string): boolean => {
@@ -81,7 +85,6 @@ export class WebtoonController extends BaseController {
 
       if (filestat.size <= 10) return true; // check data is empty
       if (tmp.getUTCHours() >= Config.oldDataLimit) return true; //check data is old
-      // if (true) return true;
 
       return false;
     } catch (error) {
@@ -89,6 +92,53 @@ export class WebtoonController extends BaseController {
       return;
     }
   };
+
+  dataIntegration(data: IwebtoonDTO[], platform: Platform) {
+    try {
+      const file = `${dataPath}/${platform}/${platform}_all.json`;
+
+      if (!fs.existsSync(file)) {
+        fs.appendFileSync(file, '[]');
+      }
+
+      const filedata: IwebtoonDTO[] = JSON.parse(fs.readFileSync(file, 'utf8'));
+
+      const isFileOld = data.reduce((prev, cur) => {
+        const targetData = filedata.filter((target) => {
+          return cur.title === target.title;
+        });
+
+        if (targetData.length == 0) return prev || true;
+        if (cur.isUp != targetData[0].isUp) return prev || true;
+        if (cur.isBreak != targetData[0].isBreak) return prev || true;
+
+        return prev || false;
+      }, false);
+
+      if (isFileOld) {
+        const buf = JSON.stringify(
+          this.getUniqueData(
+            data.concat(
+              filedata.map((val) => {
+                val.isUp = false;
+                return val;
+              }),
+            ),
+            'title',
+          ),
+        );
+
+        fs.writeFileSync(file, buf, 'utf8');
+
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+  }
 
   getUniqueData(
     data: IwebtoonDTO[],
@@ -101,27 +151,6 @@ export class WebtoonController extends BaseController {
         }) === srcIndex
       );
     });
-  }
-
-  dataIntegration(data: IwebtoonDTO[], platform: Platform) {
-    try {
-      const file = `${dataPath}/${platform}/${platform}_all.json`;
-
-      if (!fs.existsSync(file)) {
-        fs.appendFileSync(file, '[]');
-      }
-
-      const filedata: IwebtoonDTO[] = JSON.parse(fs.readFileSync(file, 'utf8'));
-
-      const buf = JSON.stringify(
-        this.getUniqueData(data.concat(filedata), 'title'),
-      );
-
-      fs.writeFileSync(file, buf, 'utf8');
-    } catch (error) {
-      console.error(error);
-      return;
-    }
   }
 
   @Get(`/:platform(${platformregex})`)

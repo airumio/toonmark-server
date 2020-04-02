@@ -2,11 +2,15 @@ import 'reflect-metadata';
 import { createExpressServer, useContainer } from 'routing-controllers';
 import { Container } from 'typedi';
 import { WebtoonController } from './controller/WebtoonController';
+import { LoggingMiddleware } from './middleware/LoggingMiddleware';
+import { TestInterceptor } from './interceptor/TestInterceptor';
 
 useContainer(Container);
 
 const app = createExpressServer({
   controllers: [WebtoonController],
+  middlewares: [LoggingMiddleware],
+  interceptors: [TestInterceptor],
 });
 
 app.listen(8080, () => {

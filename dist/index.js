@@ -4,9 +4,13 @@ require("reflect-metadata");
 const routing_controllers_1 = require("routing-controllers");
 const typedi_1 = require("typedi");
 const WebtoonController_1 = require("./controller/WebtoonController");
+const LoggingMiddleware_1 = require("./middleware/LoggingMiddleware");
+const TestInterceptor_1 = require("./interceptor/TestInterceptor");
 routing_controllers_1.useContainer(typedi_1.Container);
 const app = routing_controllers_1.createExpressServer({
     controllers: [WebtoonController_1.WebtoonController],
+    middlewares: [LoggingMiddleware_1.LoggingMiddleware],
+    interceptors: [TestInterceptor_1.TestInterceptor],
 });
 app.listen(8080, () => {
     console.log('server on~');

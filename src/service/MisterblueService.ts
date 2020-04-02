@@ -69,8 +69,6 @@ export class MisterblueService extends BaseService {
   }
   public async getInfo(weekday?: string): Promise<IwebtoonDTO[]> {
     try {
-      //   const data = await this.createData(new URL(Address.misterblue), weekday);
-
       const response: AxiosResponse<any> = await Axios.get(Address.misterblue);
       const $ = Cheerio.load(response.data);
 
