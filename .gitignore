@@ -1,3 +1,5 @@
 node_modules
+.well-known
 #dist folder
 dist
+yarn-error.log
