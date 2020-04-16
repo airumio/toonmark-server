@@ -20,14 +20,6 @@ var Weekday;
     Weekday["SAT"] = "sat";
     Weekday["SUN"] = "sun";
     Weekday["TEN"] = "ten";
-    Weekday["\uC6D4"] = "mon";
-    Weekday["\uD654"] = "tue";
-    Weekday["\uC218"] = "wed";
-    Weekday["\uBAA9"] = "thu";
-    Weekday["\uAE08"] = "fri";
-    Weekday["\uD1A0"] = "sat";
-    Weekday["\uC77C"] = "sun";
-    Weekday["\uC5F4\uD758"] = "ten";
 })(Weekday = exports.Weekday || (exports.Weekday = {}));
 var Genre;
 (function (Genre) {

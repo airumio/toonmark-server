@@ -2,16 +2,10 @@ import 'reflect-metadata';
 import { Container } from 'typedi';
 import fs from 'fs';
 import Moment from 'moment';
-import {
-  Controller,
-  JsonController,
-  Param,
-  Get,
-  OnUndefined,
-} from 'routing-controllers';
+import { Controller, JsonController, Param, Get } from 'routing-controllers';
 import { BaseController } from './BaseController';
 import { Platform, Weekday } from '../model/Enum';
-import { platformDaytype } from '../model/Object';
+import { platformDaytype, platformKorToEng } from '../model/Object';
 import Config from '../config/config.json';
 import {
   BaseService,
@@ -27,12 +21,6 @@ import {
 
 const dataPath = __dirname + '\\..\\..\\src\\data';
 const platformregex = 'daum|naver|kakao|lezhin|toomics|toptoon|misterblue';
-
-/*
-월요일 업 상태 -> all로 병합
-
-화요일 업 상태 -> all로 병합 시 월요일은 false여야 하는데 여전히 true상태
-*/
 
 // @Controller('/webtoon')
 @JsonController('/webtoon')
@@ -63,7 +51,6 @@ export class WebtoonController extends BaseController {
     // throw new Error('Method not implemented.');
 
     return { hi: 'this is test page' };
-    // return filedata;
   };
 
   dataFileChecker = (file: string): boolean => {
@@ -213,5 +200,44 @@ export class WebtoonController extends BaseController {
       console.error(error);
       return;
     }
+  }
+  /*
+  Search 메소드 설계
+
+  data 폴더를 읽는다
+  data 폴더 내부에 있는 폴더 수 만큼 반복 작업
+    반복작업 내용
+    1. 모든 내부폴더이름 + all.json의 파일을 읽어들인다(reduce concat)
+    2. 위 단계의 결과물을 filter로 결과값을 반환한다.
+
+   제목, 작가, 플랫폼, 장르
+
+  */
+
+  @Get(`/search/:criteria`)
+  public searchData(@Param('criteria') criteria: string) {
+    criteria = criteria.replace(/\s/gi, '');
+
+    const fileList = fs.readdirSync(dataPath, 'utf-8');
+
+    const data = fileList.reduce((prev, cur) => {
+      return prev.concat(
+        JSON.parse(
+          fs.readFileSync(`${dataPath}/${cur}/${cur}_all.json`, 'utf8'),
+        ),
+      );
+    }, []);
+
+    const result = data.filter((val: IwebtoonDTO) => {
+      return (
+        val.title.replace(/\s/gi, '').includes(criteria) ||
+        val.author.replace(/\s/gi, '').includes(criteria) ||
+        val.genre.replace(/\s/gi, '').includes(criteria) ||
+        val.platform === platformKorToEng[criteria] ||
+        val.platform === criteria
+      );
+    });
+
+    return result;
   }
 }

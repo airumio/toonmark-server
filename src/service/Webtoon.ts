@@ -9,7 +9,6 @@ export interface IwebtoonDTO {
   link: string;
   isUp: boolean;
   isBreak: boolean;
-  rank?: string;
   author?: string;
   genre?: string;
 }

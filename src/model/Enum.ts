@@ -17,14 +17,6 @@ export enum Weekday {
   SAT = 'sat',
   SUN = 'sun',
   TEN = 'ten',
-  월 = 'mon',
-  화 = 'tue',
-  수 = 'wed',
-  목 = 'thu',
-  금 = 'fri',
-  토 = 'sat',
-  일 = 'sun',
-  열흘 = 'ten',
 }
 
 export enum Genre {

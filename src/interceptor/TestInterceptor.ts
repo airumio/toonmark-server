@@ -33,6 +33,7 @@ export class TestInterceptor implements InterceptorInterface {
       status: this.getStatusCode(content),
       data: content,
     };
+
     action.response.statusCode = result.status.statusCode;
 
     return result;
