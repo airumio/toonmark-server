@@ -8,6 +8,13 @@ const weekday: Weekday[] = [
   Weekday.FRI,
   Weekday.SAT,
   Weekday.SUN,
+  Weekday.월,
+  Weekday.화,
+  Weekday.수,
+  Weekday.목,
+  Weekday.금,
+  Weekday.토,
+  Weekday.일,
 ];
 
 export const weekDayKorToEng: { [key: string]: string } = {
@@ -25,8 +32,8 @@ export const platformDaytype = {
   naver: weekday,
   daum: weekday,
   kakao: weekday,
-  lezhin: weekday.concat(Weekday.TEN),
-  toomics: weekday.concat(Weekday.TEN),
+  lezhin: weekday.concat(Weekday.TEN, Weekday.열흘),
+  toomics: weekday.concat(Weekday.TEN, Weekday.열흘),
   toptoon: weekday,
   misterblue: weekday,
 };

@@ -1,18 +1,13 @@
 import 'reflect-metadata';
 import { Container } from 'typedi';
 import fs from 'fs';
+import path from 'path';
 import Moment from 'moment';
-import {
-  Controller,
-  JsonController,
-  Param,
-  Get,
-  OnUndefined,
-} from 'routing-controllers';
+import { Controller, JsonController, Param, Get } from 'routing-controllers';
 import { BaseController } from './BaseController';
 import { Platform, Weekday } from '../model/Enum';
-import { platformDaytype } from '../model/Object';
-import Config from '../config/config.json';
+import { platformDaytype, weekDayKorToEng } from '../model/Object';
+import { config } from '../config/config';
 import {
   BaseService,
   NaverService,
@@ -25,7 +20,7 @@ import {
   MisterblueService,
 } from '../service';
 
-const dataPath = __dirname + '\\..\\..\\src\\data';
+const dataPath = path.join(config.rootpath, config.datapath);
 const platformregex = 'daum|naver|kakao|lezhin|toomics|toptoon|misterblue';
 
 /*
@@ -62,13 +57,13 @@ export class WebtoonController extends BaseController {
     // return data;
     // throw new Error('Method not implemented.');
 
-    return { hi: 'this is test page' };
+    return { hi: 'this is test page', test: process.env.NODE_ENV };
     // return filedata;
   };
 
   dataFileChecker = (file: string): boolean => {
     try {
-      //create data.json file when the file doesn't exists.
+      //create data file when the file doesn't exists.
       if (!fs.existsSync(file)) {
         try {
           fs.mkdirSync(file.slice(0, file.lastIndexOf('/')));
@@ -84,7 +79,7 @@ export class WebtoonController extends BaseController {
       const tmp: Date = new Date(Date.now() - filestat.mtime.getTime());
 
       if (filestat.size <= 10) return true; // check data is empty
-      if (tmp.getUTCHours() >= Config.oldDataLimit) return true; //check data is old
+      if (tmp.getUTCHours() >= config.oldDataHourLimit) return true; //check data is old
 
       return false;
     } catch (error) {
@@ -95,7 +90,7 @@ export class WebtoonController extends BaseController {
 
   dataIntegration(data: IwebtoonDTO[], platform: Platform) {
     try {
-      const file = `${dataPath}/${platform}/${platform}_all.json`;
+      const file = `${dataPath}/${platform}/${platform}_all${config.dataType}`;
 
       if (!fs.existsSync(file)) {
         fs.appendFileSync(file, '[]');
@@ -159,7 +154,7 @@ export class WebtoonController extends BaseController {
   ): Promise<IwebtoonDTO[] | undefined> {
     try {
       const container = this.serviceSelector(platform);
-      const file = `${dataPath}/${platform}/${platform}_all.json`;
+      const file = `${dataPath}/${platform}/${platform}_all${config.dataType}`;
 
       if (this.dataFileChecker(file)) {
         const info = await container.getInfo();
@@ -196,8 +191,12 @@ export class WebtoonController extends BaseController {
           .toLowerCase();
       }
 
+      if (Object.keys(weekDayKorToEng).includes(weekday)) {
+        weekday = weekDayKorToEng[weekday];
+      }
+
       const container = this.serviceSelector(platform);
-      const file = `${dataPath}/${platform}/${platform}_${weekday}.json`;
+      const file = `${dataPath}/${platform}/${platform}_${weekday}${config.dataType}`;
 
       if (this.dataFileChecker(file)) {
         const buf: string = JSON.stringify(await container.getInfo(weekday));

@@ -2,6 +2,7 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
 const routing_controllers_1 = require("routing-controllers");
@@ -11,23 +12,28 @@ const LoggingMiddleware_1 = require("./middleware/LoggingMiddleware");
 const TestInterceptor_1 = require("./interceptor/TestInterceptor");
 const fs_1 = __importDefault(require("fs"));
 const spdy_1 = __importDefault(require("spdy"));
-const certPath = `${__dirname}\\..\\.well-known\\validation`;
+const path_1 = __importDefault(require("path"));
+const config_1 = require("./config/config");
 routing_controllers_1.useContainer(typedi_1.Container);
-const cert = {
-    key: fs_1.default.readFileSync(`${certPath}\\private.key`, 'utf8'),
-    cert: fs_1.default.readFileSync(`${certPath}\\self-signed.crt`, 'utf8'),
-    passphrase: 'campantan',
-};
+// http server
 const app = routing_controllers_1.createExpressServer({
     controllers: [WebtoonController_1.WebtoonController],
     middlewares: [LoggingMiddleware_1.LoggingMiddleware],
     interceptors: [TestInterceptor_1.TestInterceptor],
 });
-const app2 = spdy_1.default.createServer(cert, app);
-app.listen(80, () => {
+app.listen(config_1.config.httpPort, () => {
     console.log('server on~');
 });
-app2.listen(443, () => {
-    console.log('https server on~');
-});
+// https server
+if (_c = (_b = (_a = config_1.config.certPath, (_a !== null && _a !== void 0 ? _a : config_1.config.privateKey)), (_b !== null && _b !== void 0 ? _b : config_1.config.certificate)), (_c !== null && _c !== void 0 ? _c : false)) {
+    const cert = {
+        key: fs_1.default.readFileSync(path_1.default.join(config_1.config.certPath, config_1.config.privateKey), 'utf8'),
+        cert: fs_1.default.readFileSync(path_1.default.join(config_1.config.certPath, config_1.config.certificate), 'utf8'),
+        passphrase: config_1.config.passphrase,
+    };
+    const https = spdy_1.default.createServer(cert, app);
+    https.listen(config_1.config.httpsPort, () => {
+        console.log('https server on~');
+    });
+}
 //# sourceMappingURL=index.js.map

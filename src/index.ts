@@ -6,29 +6,35 @@ import { LoggingMiddleware } from './middleware/LoggingMiddleware';
 import { TestInterceptor } from './interceptor/TestInterceptor';
 import fs from 'fs';
 import spdy from 'spdy';
-
-const certPath = `${__dirname}\\..\\.well-known\\validation`;
+import path from 'path';
+import { config } from './config/config';
 
 useContainer(Container);
 
-const cert = {
-  key: fs.readFileSync(`${certPath}\\private.key`, 'utf8'),
-  cert: fs.readFileSync(`${certPath}\\self-signed.crt`, 'utf8'),
-  passphrase: 'campantan',
-};
-
+// http server
 const app = createExpressServer({
   controllers: [WebtoonController],
   middlewares: [LoggingMiddleware],
   interceptors: [TestInterceptor],
 });
 
-const app2 = spdy.createServer(cert, app);
-
-app.listen(80, () => {
+app.listen(config.httpPort, () => {
   console.log('server on~');
 });
 
-app2.listen(443, () => {
-  console.log('https server on~');
-});
+// https server
+
+if (config.certPath ?? config.privateKey ?? config.certificate ?? false) {
+  const cert = {
+    key: fs.readFileSync(path.join(config.certPath, config.privateKey), 'utf8'),
+    cert: fs.readFileSync(
+      path.join(config.certPath, config.certificate),
+      'utf8',
+    ),
+    passphrase: config.passphrase,
+  };
+  const https = spdy.createServer(cert, app);
+  https.listen(config.httpsPort, () => {
+    console.log('https server on~');
+  });
+}

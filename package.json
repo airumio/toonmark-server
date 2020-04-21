@@ -5,18 +5,18 @@
   "main": "index.js",
   "scripts": {
     "build-ts": "tsc",
-    "start": "npm run serve",
-    "serve": "node dist/index.js",
+    "start": "concurrently \"tsc -w\" \"cross-env NODE_ENV=production nodemon dist/index.js\"",
+    "develop": "concurrently \"tsc -w\" \"cross-env NODE_ENV=develop nodemon dist/index.js\"",
     "watch-node": "nodemon dist/index.js",
     "watch-ts": "tsc -w"
   },
-  "repository": "git+https://github.com/airumio/toonmark-tutorial.git",
+  "repository": "git+https://github.com/airumio/toonmark-server.git",
   "author": "airumio <airumio@naver.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/airumio/toonmark-tutorial/issues"
+    "url": "https://github.com/airumio/toonmark-server/issues"
   },
-  "homepage": "https://github.com/airumio/toonmark-tutorial#readme",
+  "homepage": "https://github.com/airumio/toonmark-server#readme",
   "dependencies": {
     "axios": "^0.19.2",
     "axios-rate-limit": "^1.2.1",
@@ -25,6 +25,8 @@
     "cheerio-httpcli": "^0.7.4",
     "class-transformer": "^0.2.3",
     "class-validator": "^0.11.0",
+    "concurrently": "^5.1.0",
+    "cross-env": "^7.0.2",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "moment": "^2.24.0",
