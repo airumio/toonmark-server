@@ -28,6 +28,16 @@ export const weekDayKorToEng: { [key: string]: string } = {
   열흘: 'ten',
 };
 
+export const platformKorToEng: { [key: string]: string } = {
+  네이버: 'naver',
+  다음: 'daum',
+  카카오: 'kakao',
+  레진: 'lezhin',
+  투믹스: 'toomics',
+  탑툰: 'toptoon',
+  미스터블루: 'misterblue',
+};
+
 export const platformDaytype = {
   naver: weekday,
   daum: weekday,

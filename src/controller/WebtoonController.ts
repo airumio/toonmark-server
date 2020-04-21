@@ -6,7 +6,11 @@ import Moment from 'moment';
 import { Controller, JsonController, Param, Get } from 'routing-controllers';
 import { BaseController } from './BaseController';
 import { Platform, Weekday } from '../model/Enum';
-import { platformDaytype, weekDayKorToEng } from '../model/Object';
+import {
+  platformDaytype,
+  platformKorToEng,
+  weekDayKorToEng,
+} from '../model/Object';
 import { config } from '../config/config';
 import {
   BaseService,
@@ -76,10 +80,13 @@ export class WebtoonController extends BaseController {
       }
 
       const filestat = fs.statSync(file);
-      const tmp: Date = new Date(Date.now() - filestat.mtime.getTime());
+      const elapsedTimeOfData: Date = new Date(
+        Date.now() - filestat.mtime.getTime(),
+      );
 
       if (filestat.size <= 10) return true; // check data is empty
-      if (tmp.getUTCHours() >= config.oldDataHourLimit) return true; //check data is old
+      if (elapsedTimeOfData.getUTCHours() >= config.oldDataHourLimit)
+        return true; //check data is old
 
       return false;
     } catch (error) {
@@ -212,5 +219,31 @@ export class WebtoonController extends BaseController {
       console.error(error);
       return;
     }
+  }
+
+  @Get(`/search/:criteria`)
+  public async getSearchData(@Param('criteria') criteria: string) {
+    const dataList = fs.readdirSync(dataPath);
+
+    const data = dataList.reduce((prev, cur) => {
+      return prev.concat(
+        JSON.parse(
+          fs.readFileSync(
+            path.join(dataPath, cur, `${cur}_all${config.dataType}`),
+            'utf8',
+          ),
+        ),
+      );
+    }, []);
+
+    const result = data.filter((val: IwebtoonDTO) => {
+      if (val.title.includes(criteria)) return true;
+      if (val.author.includes(criteria)) return true;
+      if (val.genre.includes(criteria)) return true;
+      if (val.platform.includes(criteria)) return true;
+      if (val.platform.includes(platformKorToEng[criteria])) return true;
+    });
+
+    return result;
   }
 }
