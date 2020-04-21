@@ -38,9 +38,19 @@ export class ToptoonService extends BaseService {
             ? val.thumbnail.portrait
             : val.thumbnailNonAdult.portrait;
         const link = baseUrl + val.meta.comicsListUrl;
-        const author = val.meta.author.authorData
-          .map((val) => val.name)
-          .join(',');
+
+        //temp code
+        const author =
+          val.meta.author.authorData === undefined
+            ? 'null'
+            : val.meta.author.authorData.map((val) => val.name).join(',');
+
+        // const author = val.meta.author.authorData
+        //   .map((val) => val.name)
+        //   .join(',');
+
+        console.log(title, ' : ', val.meta.author.authorData);
+
         const isUp = val.ribbon.up;
         const isBreak = false;
         const genre = val.meta.genre.map((val) => val.name).join(',');
