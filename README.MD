@@ -12,8 +12,8 @@ ToonMark API Server는 웹툰 플랫폼들의 작품 데이터들을 통합하�
 
 ```
 GET http://[Address]/webtoon/[Platform] HTTP/1.1    -   해당 플랫폼의 전체 작품 목록
-GET http://[Address]/webtoon/[Platform]/[Weekday] HTTP/1.1    -   해당 플랫폼의 특정 요일 작품 목록
-GET http://[Address]/webtoon/search/[keyword] HTTP/1.1    - 작품 검색 URL
+GET http://[Address]/webtoon/[Platform]/[Weekday] HTTP/1.1    -   해당 플랫폼의 선택 요일 작품 목록
+GET http://[Address]/webtoon/search/[keyword] HTTP/1.1    - [제목, 작가, 장르, 플랫폼] 기준 작품 검색
 
 GET https://[Address]/webtoon/[Platform] HTTP/2
 GET https://[Address]/webtoon/[Platform]/[Weekday] HTTP/2
