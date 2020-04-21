@@ -76,10 +76,13 @@ export class WebtoonController extends BaseController {
       }
 
       const filestat = fs.statSync(file);
-      const tmp: Date = new Date(Date.now() - filestat.mtime.getTime());
+      const elapsedTimeOfData: Date = new Date(
+        Date.now() - filestat.mtime.getTime(),
+      );
 
       if (filestat.size <= 10) return true; // check data is empty
-      if (tmp.getUTCHours() >= config.oldDataHourLimit) return true; //check data is old
+      if (elapsedTimeOfData.getUTCHours() >= config.oldDataHourLimit)
+        return true; //check data is old
 
       return false;
     } catch (error) {
@@ -213,4 +216,7 @@ export class WebtoonController extends BaseController {
       return;
     }
   }
+
+  @Get(`/:platform(${platformregex})/:criteria`)
+  public async getSearchData() {}
 }
