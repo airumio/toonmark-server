@@ -49,8 +49,6 @@ export class ToptoonService extends BaseService {
         //   .map((val) => val.name)
         //   .join(',');
 
-        console.log(title, ' : ', val.meta.author.authorData);
-
         const isUp = val.ribbon.up;
         const isBreak = false;
         const genre = val.meta.genre.map((val) => val.name).join(',');

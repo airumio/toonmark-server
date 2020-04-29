@@ -15,6 +15,7 @@ export class DaumService extends BaseService {
       const baseUrl = url.origin;
       const response: AxiosResponse<any> = await Axios.get(url.href);
       const rawdata = response.data.data;
+
       const data = rawdata.map((val: daumApiType) => {
         const id = val.nickname;
         const title = val.title;

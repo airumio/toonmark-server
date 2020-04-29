@@ -8,7 +8,9 @@ import fs from 'fs';
 import spdy from 'spdy';
 import path from 'path';
 import { config } from './config/config';
+import { logger } from './config/loggerConfig';
 
+// create routing-controllers
 useContainer(Container);
 
 // http server
@@ -19,7 +21,8 @@ const app = createExpressServer({
 });
 
 app.listen(config.httpPort, () => {
-  console.log('server on~');
+  // console.log('server on~');
+  logger.info(`http server on port : ${config.httpPort}`);
 });
 
 // https server

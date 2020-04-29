@@ -14,6 +14,8 @@ const fs_1 = __importDefault(require("fs"));
 const spdy_1 = __importDefault(require("spdy"));
 const path_1 = __importDefault(require("path"));
 const config_1 = require("./config/config");
+const loggerConfig_1 = require("./config/loggerConfig");
+// create routing-controllers
 routing_controllers_1.useContainer(typedi_1.Container);
 // http server
 const app = routing_controllers_1.createExpressServer({
@@ -22,10 +24,11 @@ const app = routing_controllers_1.createExpressServer({
     interceptors: [TestInterceptor_1.TestInterceptor],
 });
 app.listen(config_1.config.httpPort, () => {
-    console.log('server on~');
+    // console.log('server on~');
+    loggerConfig_1.logger.info(`http server on port : ${config_1.config.httpPort}`);
 });
 // https server
-if (_c = (_b = (_a = config_1.config.certPath, (_a !== null && _a !== void 0 ? _a : config_1.config.privateKey)), (_b !== null && _b !== void 0 ? _b : config_1.config.certificate)), (_c !== null && _c !== void 0 ? _c : false)) {
+if ((_c = (_b = (_a = config_1.config.certPath) !== null && _a !== void 0 ? _a : config_1.config.privateKey) !== null && _b !== void 0 ? _b : config_1.config.certificate) !== null && _c !== void 0 ? _c : false) {
     const cert = {
         key: fs_1.default.readFileSync(path_1.default.join(config_1.config.certPath, config_1.config.privateKey), 'utf8'),
         cert: fs_1.default.readFileSync(path_1.default.join(config_1.config.certPath, config_1.config.certificate), 'utf8'),

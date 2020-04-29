@@ -190,16 +190,16 @@ export class WebtoonController extends BaseController {
     @Param('weekday') weekday: string,
   ): Promise<IwebtoonDTO[] | undefined> {
     try {
+      if (Object.keys(weekDayKorToEng).includes(weekday)) {
+        weekday = weekDayKorToEng[weekday];
+      }
+
       if (
         !Object.values(platformDaytype[platform]).includes(weekday as Weekday)
       ) {
         weekday = Moment()
           .format('ddd')
           .toLowerCase();
-      }
-
-      if (Object.keys(weekDayKorToEng).includes(weekday)) {
-        weekday = weekDayKorToEng[weekday];
       }
 
       const container = this.serviceSelector(platform);
