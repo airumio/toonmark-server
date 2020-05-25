@@ -190,10 +190,32 @@ export class WebtoonController extends BaseController {
     @Param('weekday') weekday: string,
   ): Promise<IwebtoonDTO[] | undefined> {
     try {
+      // lower case
+      weekday = weekday.toLowerCase();
+
+      // check full name of weekday
+      if (weekday.includes('day')) {
+        const tmpstr = weekday.substr(0, 3);
+
+        if (platformDaytype[platform].includes(tmpstr as Weekday))
+          weekday = tmpstr;
+      }
+
+      // check full name of korean weekday
+      if (weekday.includes('요일')) {
+        const tmpstr = weekday.substr(0, 1);
+
+        if (Object.keys(weekDayKorToEng).includes(tmpstr)) {
+          weekday = tmpstr;
+        }
+      }
+
+      // check korean weekday
       if (Object.keys(weekDayKorToEng).includes(weekday)) {
         weekday = weekDayKorToEng[weekday];
       }
 
+      // check other word
       if (
         !Object.values(platformDaytype[platform]).includes(weekday as Weekday)
       ) {
