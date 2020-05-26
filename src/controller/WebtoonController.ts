@@ -155,19 +155,37 @@ export class WebtoonController extends BaseController {
     });
   }
 
+  setAfterRequestFailure = (
+    file: string,
+  ): [boolean, IwebtoonDTO[] | string] => {
+    const filestat = fs.statSync(file);
+
+    if (filestat.size < 10) {
+      fs.unlinkSync(file);
+      return [true, 'Request FAILED'];
+    }
+
+    return [true, JSON.parse(fs.readFileSync(file, 'utf8'))];
+  };
+
   @Get(`/:platform(${platformregex})`)
   public async getList(
     @Param('platform') platform: Platform,
-  ): Promise<IwebtoonDTO[] | undefined> {
+  ): Promise<IwebtoonDTO[] | string> {
     try {
       const container = this.serviceSelector(platform);
       const file = `${dataPath}/${platform}/${platform}_all${config.dataType}`;
 
       if (this.dataFileChecker(file)) {
         const info = await container.getInfo();
+
         const filedata: IwebtoonDTO[] = JSON.parse(
           fs.readFileSync(file, 'utf8'),
         );
+
+        if (info.includes(undefined)) {
+          return this.setAfterRequestFailure(file)[1];
+        }
 
         const buf = JSON.stringify(
           this.getUniqueData(info.concat(filedata), 'title'),
@@ -246,19 +264,6 @@ export class WebtoonController extends BaseController {
       return;
     }
   }
-
-  setAfterRequestFailure = (
-    file: string,
-  ): [boolean, IwebtoonDTO[] | string] => {
-    const filestat = fs.statSync(file);
-
-    if (filestat.size < 10) {
-      fs.unlinkSync(file);
-      return [true, 'Request FAILED'];
-    }
-
-    return [true, JSON.parse(fs.readFileSync(file, 'utf8'))];
-  };
 
   @Get(`/search/:criteria`)
   public async getSearchData(@Param('criteria') criteria: string) {
