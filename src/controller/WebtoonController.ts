@@ -188,7 +188,7 @@ export class WebtoonController extends BaseController {
   public async getDailyList(
     @Param('platform') platform: Platform,
     @Param('weekday') weekday: string,
-  ): Promise<IwebtoonDTO[] | undefined> {
+  ): Promise<IwebtoonDTO[] | string> {
     try {
       // lower case
       weekday = weekday.toLowerCase();
@@ -228,7 +228,11 @@ export class WebtoonController extends BaseController {
       const file = `${dataPath}/${platform}/${platform}_${weekday}${config.dataType}`;
 
       if (this.dataFileChecker(file)) {
-        const buf: string = JSON.stringify(await container.getInfo(weekday));
+        const buf: string | [boolean, IwebtoonDTO[] | string] =
+          JSON.stringify(await container.getInfo(weekday)) ??
+          this.setAfterRequestFailure(file);
+
+        if (buf[0] === true) return buf[1];
 
         fs.writeFileSync(file, buf, 'utf8');
       }
@@ -242,6 +246,19 @@ export class WebtoonController extends BaseController {
       return;
     }
   }
+
+  setAfterRequestFailure = (
+    file: string,
+  ): [boolean, IwebtoonDTO[] | string] => {
+    const filestat = fs.statSync(file);
+
+    if (filestat.size < 10) {
+      fs.unlinkSync(file);
+      return [true, 'Request FAILED'];
+    }
+
+    return [true, JSON.parse(fs.readFileSync(file, 'utf8'))];
+  };
 
   @Get(`/search/:criteria`)
   public async getSearchData(@Param('criteria') criteria: string) {
