@@ -29,6 +29,7 @@ import admin, { credential } from 'firebase-admin';
 // import fs from 'fs';
 import path from 'path';
 import { firebaseConfig } from 'firebase-functions';
+import { debug } from 'winston';
 
 // firebase admin initialize
 admin.initializeApp({
@@ -77,7 +78,15 @@ export class WebtoonController extends BaseController {
     //   // test: process.env.NODE_ENV ?? 'this is null',
     // };
 
-    return { hi: 'this is test page', test: process.env.NODE_ENV };
+    // await bucket
+    //   .file(`${config.dataPath}/testfile.txt`)
+    //   .save('This is Test File');
+
+    return {
+      hi: 'this is test page',
+      // test: process.env.NODE_ENV,
+      // path: `${config.dataPath}/daum/daum_mon${config.dataType}`,
+    };
     // return filedata;
   };
 
@@ -89,16 +98,16 @@ export class WebtoonController extends BaseController {
       const isFileExists = await bucket.file(file).exists();
 
       if (!isFileExists[0]) {
-        // console.log('dataFileChecker 0');
+        console.log('dataFileChecker 0');
 
         await bucket.file(file).save('[]', { contentType: config.contentType });
 
-        // console.log('dataFileChecker 1');
+        console.log('dataFileChecker 1');
 
         return true;
       }
 
-      // console.log('dataFileChecker 2');
+      console.log('dataFileChecker 2');
 
       const [meta] = await bucket.file(file).getMetadata();
 
@@ -107,7 +116,7 @@ export class WebtoonController extends BaseController {
       if (meta.size <= 10) return true; // check data is empty
       if (elapsedTimeOfData >= config.oldDataHourLimit) return true; //check data is old
 
-      // console.log('dataFileChecker 3');
+      console.log('dataFileChecker 3');
 
       return false;
     } catch (error) {
@@ -189,19 +198,16 @@ export class WebtoonController extends BaseController {
 
   setAfterRequestFailure = async (
     file: string,
-  ): Promise<[boolean, IwebtoonDTO[] | string]> => {
+  ): Promise<IwebtoonDTO[] | string> => {
     const [meta] = await bucket.file(file).getMetadata();
 
     if (meta.size < 10) {
       await bucket.file(file).delete();
 
-      return [true, 'Request FAILED'];
+      return 'Request FAILED';
     }
 
-    return [
-      true,
-      JSON.parse(await (await bucket.file(file).download()).toString()),
-    ];
+    return JSON.parse((await bucket.file(file).download()).toString());
   };
 
   @Get(`/:platform(${platformregex})`)
@@ -213,17 +219,39 @@ export class WebtoonController extends BaseController {
 
       const file = `${config.dataPath}/${platform}/${platform}_all${config.dataType}`;
 
+      console.log('getList - 1');
+
       const fileCheck = await this.dataFileChecker(file);
 
+      console.log('getList - 2');
+
       if (fileCheck) {
+        console.log('getList - 2 - 1');
+
         const info = await container.getInfo();
+
+        console.log('getList - 2 - 2');
 
         const filedata: IwebtoonDTO[] = JSON.parse(
           (await bucket.file(file).download()).toString(),
         );
 
-        if (info.includes(undefined)) {
-          return (await this.setAfterRequestFailure(file))[1];
+        console.log('getList - 2 - 3');
+
+        // await bucket
+        //   .file(`${config.dataPath}/debug_from_all1.txt`)
+        //   .save(info, { contentType: config.contentType });
+
+        if (info.includes(undefined) || info === undefined) {
+          const result = await this.setAfterRequestFailure(file);
+
+          console.log('getList - 2 - 4');
+
+          // await bucket
+          //   .file(`${config.dataPath}/debug_from_all2.txt`)
+          //   .save(result, { contentType: config.contentType });
+
+          return result;
         }
 
         const buf = JSON.stringify(
@@ -233,9 +261,13 @@ export class WebtoonController extends BaseController {
         await bucket.file(file).save(buf, { contentType: config.contentType });
       }
 
+      console.log('getList - 3');
+
       const data: IwebtoonDTO[] = JSON.parse(
         (await bucket.file(file).download()).toString(),
       );
+
+      console.log('getList - 4');
 
       return data;
     } catch (error) {
@@ -287,37 +319,47 @@ export class WebtoonController extends BaseController {
 
       const file = `${config.dataPath}/${platform}/${platform}_${weekday}${config.dataType}`;
 
-      // console.log('check0');
+      console.log('check0');
 
       const fileCheck = await this.dataFileChecker(file);
 
       if (fileCheck) {
-        // console.log('check0 - 1');
+        console.log('check0 - 1');
 
-        const buf: string | [boolean, IwebtoonDTO[] | string] =
-          JSON.stringify(await container.getInfo(weekday)) ??
-          (await this.setAfterRequestFailure(file));
+        const buf: string = JSON.stringify(await container.getInfo(weekday));
 
-        if (buf[0] === true) return buf[1];
+        // await bucket
+        //   .file(`${config.dataPath}/debug.txt`)
+        //   .save(buf, { contentType: config.contentType });
 
-        // console.log('check0 - 2');
+        if (buf === undefined) {
+          const result = await this.setAfterRequestFailure(file);
+
+          // await bucket
+          //   .file(`${config.dataPath}/debug2.txt`)
+          //   .save(result, { contentType: config.contentType });
+
+          return result;
+        }
+
+        console.log('check0 - 2');
 
         await bucket.file(file).save(buf, { contentType: config.contentType });
 
-        // console.log('check0 - 3');
+        console.log('check0 - 3');
       }
 
-      // console.log('check1');
+      console.log('check1');
 
       const data: IwebtoonDTO[] = JSON.parse(
         (await bucket.file(file).download()).toString(),
       );
 
-      // console.log('check2');
+      console.log('check2');
 
       await this.dataIntegration(data, platform);
 
-      // console.log('check3');
+      console.log('check3');
 
       return data;
     } catch (error) {
