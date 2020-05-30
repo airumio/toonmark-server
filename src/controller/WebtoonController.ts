@@ -60,8 +60,31 @@ export class WebtoonController extends BaseController {
 
     // return data;
     // throw new Error('Method not implemented.');
+    const platform: string[] = [
+      'naver',
+      'daum',
+      'kakao',
+      'lezhin',
+      'toomics',
+      'toptoon',
+      'misterblue',
+    ];
 
-    return { hi: 'this is test page', test: process.env.NODE_ENV };
+    const sample = platform.map((e: keyof typeof platformDaytype) => {
+      return platformDaytype[e].map((value) => {
+        console.log(
+          `Request url : https://asia-east2-toonmark-api.cloudfunctions.net/api/webtoon/${e}/${value}`,
+        );
+
+        return `Request url : https://asia-east2-toonmark-api.cloudfunctions.net/api/webtoon/${e}/${value}`;
+      });
+    });
+
+    return {
+      hi: 'this is test page',
+      test: process.env.NODE_ENV,
+      sample,
+    };
     // return filedata;
   };
 

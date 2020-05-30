@@ -13,4 +13,6 @@ export const config = {
   dataType: process.env.DATA_TYPE || '.json',
   oldDataHourLimit: process.env.DATA_TIME_LIMIT || 2,
   contentType: process.env.DATA_CONTENT_TYPE || 'application/json',
+  refreshHour: process.env.DATA_REFRESH_TIME_HOUR || 0,
+  refreshMinutes: process.env.DATA_REFRESH_TIME_MINUTES || 0,
 };
